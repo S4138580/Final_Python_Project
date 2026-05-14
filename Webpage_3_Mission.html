@@ -3,21 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Mission</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./Webpage_3_Mission.css" />
   </head>
   <body>
     <div id="main">
       <!-- Header  -->
       <div id="header">
+        <a class="brand" href="Webpage_3_Mission.html">Polaware</a>
         <ul id="nav">
           <li><a href="">Home</a></li>
-          <li><a href="mission.html" class="active">Mission</a></li>
+          <li><a href="Webpage_3_Mission.html" class="active">Mission</a></li>
           <li><a href="">Vaccination Rates</a></li>
           <li><a href="">Infection Data</a></li>
           <li><a href="">Rate Improvement</a></li>
@@ -98,7 +99,58 @@
       <!-- End page 2 -->
 
       <!-- Page 3 -->
-      <div id="content_lv1A-page2"></div>
+      <div id="content_lv1A-page3">
+        <div class="circlepage3 circle1-page3"></div>
+        <div class="circlepage3 circle2-page3"></div>
+
+      <div class="persona-section">
+        <p class="small-title pink">Who is this for?</p>
+        <h1>Designed for real people with real questions</h1>
+        <p class="description">
+            Name serves two distinct user groups, each with different needs,
+            but a shared goal of understanding vaccination data clearly.
+        </p>
+
+        <div class="group-title blue">
+            Group 1 — Parents & General Public
+        </div>
+        <div class="card-container">
+            {{GROUP1}}
+        </div>
+        
+        <div class="group-title orange">Group 2 — Health Officers</div>
+        <div class="card-container">
+            {{GROUP2}}
+        </div>
+      </div>
+
+        <div class="team-section">
+          <p class="small-title green">How about our team!</p>
+          <h1>Built by</h1>
+
+          <div class="team-table-wrap">
+            <table class="team-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Student ID</th>
+                  <th>Sub-task</th>
+                  <th>Pages</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{TEAM_MEMBERS}}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <footer class="site-footer">
+          <span>(c) 2026</span>
+          <strong>Data sourced from World Health Organization</strong>
+          <span>Database updated: 19 March 2026</span>
+        </footer>
+      </div>
     </div>
   </body>
 </html>

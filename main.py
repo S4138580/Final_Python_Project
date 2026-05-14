@@ -1,7 +1,12 @@
-import sqlite3
 import pyhtml
-import shared
+import Webpage_3_Mission
 
-import page_b_level1     
-import page_b_level2    
-import page_b_level3 
+
+pyhtml.need_debugging_help = True
+
+pyhtml.MyRequestHandler.pages["/"] = Webpage_3_Mission
+pyhtml.MyRequestHandler.pages["/mission"] = Webpage_3_Mission
+pyhtml.MyRequestHandler.pages["/mission.html"] = Webpage_3_Mission
+pyhtml.MyRequestHandler.pages["/Webpage_3_Mission.html"] = Webpage_3_Mission
+
+pyhtml.host_site()

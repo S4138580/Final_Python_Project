@@ -17,16 +17,27 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
         debugging_helper(f"A web browser wants to GET the following: {parsed_url.path}")
 
         if parsed_url.path in MyRequestHandler.pages:
-            self.send_response(200)
-            self.send_header("Content-type", "text/html; charset=utf-8")
-            self.end_headers()
-
             query = parsed_url.query
             form_data = parse_qs(query)
             debugging_helper(f"\tReceived following data with GET request: {form_data}")
 
-            html_content = MyRequestHandler.pages[parsed_url.path].get_page_html(form_data)
-            self.wfile.write(html_content.encode("utf-8"))
+            response = MyRequestHandler.pages[parsed_url.path].get_page_html(form_data)
+
+            self.send_response(200)
+            if isinstance(response, dict):
+                content = response["content"]
+                content_type = response.get("content_type", "text/plain; charset=utf-8")
+                filename = response.get("filename")
+
+                self.send_header("Content-type", content_type)
+                if filename != None:
+                    self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
+                self.end_headers()
+                self.wfile.write(content.encode("utf-8"))
+            else:
+                self.send_header("Content-type", "text/html; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(response.encode("utf-8"))
         else:
             super().do_GET()
 

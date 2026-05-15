@@ -2,7 +2,7 @@ import pyhtml
 
 
 DATABASE = "Database/persona_team.db"
-TEMPLATE = "Webpage_3_Mission.html"
+TEMPLATE = "Webpage_2_Mission.html"
 
 
 def persona_icon(label):

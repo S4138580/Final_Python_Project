@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vaccination Rate Analysis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="Webpage3.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="Webpage1.html">VaxInsight</a>
+
+    <nav class="nav">
+      <a href="Webpage1.html">Home</a>
+      <a href="#">Mission</a>
+      <a class="active" href="Webpage3.html">Vaccination Rates</a>
+      <a href="#">Infection by Economy</a>
+      <a href="#">Top Improvers</a>
+      <a href="#">Above Average</a>
+    </nav>
+
+    <span class="source-pill">Data sourced from WHO</span>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <h1>Vaccination Rate<br>Analysis</h1>
+        <p>WHO immunisation data, made simple for everyone</p>
+      </div>
+
+      <span class="shape hero-dot"></span>
+      <span class="shape hero-pink"></span>
+      <span class="shape hero-blue"></span>
+      <span class="shape hero-green"></span>
+    </section>
+
+    <section class="data-section">
+      <div class="section-label">Data Explorer</div>
+      <h2>Filter vaccination data by country or region and year. View coverage rates and herd immunity levels.</h2>
+
+      <form class="filter-panel">
+        <div class="field">
+          <label>Select Antigen</label>
+          <select>
+            <option>MCV1 - Measles 1st dose</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Select Year</label>
+          <select>
+            <option>2020</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Select Region</label>
+          <select>
+            <option>All Regions</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Select Country</label>
+          <select>
+            <option>Country</option>
+          </select>
+        </div>
+
+        <div class="field target-field">
+          <label>Target</label>
+          <select>
+            <option>90% WHO Threshold</option>
+          </select>
+        </div>
+
+        <div class="filter-actions">
+          <button type="button" class="btn-primary">Apply Filters</button>
+          <button type="reset" class="btn-outline">Reset</button>
+        </div>
+      </form>
+
+      <div class="dashboard-grid">
+        <section class="summary-card">
+          <h3>Summary Snapshot</h3>
+
+          <div class="summary-grid">
+            <div class="metric">
+              <strong>134</strong>
+              <span>Countries meeting 90%<br>target</span>
+            </div>
+
+            <div class="metric">
+              <strong>84</strong>
+              <span>Countries below target</span>
+            </div>
+
+            <div class="metric">
+              <strong>84.7%</strong>
+              <span>Global avg coverage</span>
+            </div>
+
+            <div class="metric">
+              <strong>2024</strong>
+              <span>Selected year</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="region-card">
+          <h3>Coverage by Region</h3>
+
+          <div class="bar-row">
+            <span>EUR</span>
+            <div class="bar"><i style="width:92%"></i></div>
+            <strong>92%</strong>
+          </div>
+
+          <div class="bar-row">
+            <span>AMR</span>
+            <div class="bar"><i style="width:87%"></i></div>
+            <strong>87%</strong>
+          </div>
+
+          <div class="bar-row">
+            <span>WPR</span>
+            <div class="bar"><i style="width:76%"></i></div>
+            <strong>76%</strong>
+          </div>
+
+          <div class="bar-row warning">
+            <span>EMR</span>
+            <div class="bar"><i style="width:66%"></i></div>
+            <strong>66%</strong>
+          </div>
+
+          <div class="bar-row warning">
+            <span>SEAR</span>
+            <div class="bar"><i style="width:66%"></i></div>
+            <strong>66%</strong>
+          </div>
+
+          <div class="bar-row danger">
+            <span>AFR</span>
+            <div class="bar"><i style="width:60%"></i></div>
+            <strong>60%</strong>
+          </div>
+        </section>
+      </div>
+
+      <section class="table-card country-card">
+        <div class="table-head">
+          <div>
+            <h3>Country-level coverage table</h3>
+            <p>Showing 217 countries - MCV1 antigen - 2024</p>
+          </div>
+
+          <div class="table-tools">
+            <span>Search country</span>
+            <span>60 countries</span>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Country</th>
+              <th>Region</th>
+              <th>Income Group</th>
+              <th>Antigen</th>
+              <th>Year</th>
+              <th>Coverage</th>
+              <th>Target?</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>Australia</td>
+              <td>TEA</td>
+              <td>High income</td>
+              <td>MCV1</td>
+              <td>2024</td>
+              <td><span class="mini-bar good"></span>92%</td>
+              <td>MET</td>
+            </tr>
+            <tr>
+              <td>Brazil</td>
+              <td>TLA</td>
+              <td>Upper middle</td>
+              <td>MCV1</td>
+              <td>2024</td>
+              <td><span class="mini-bar good"></span>92%</td>
+              <td>MET</td>
+            </tr>
+            <tr>
+              <td>Vietnam</td>
+              <td>TSA</td>
+              <td>Lower middle</td>
+              <td>MCV1</td>
+              <td>2024</td>
+              <td><span class="mini-bar good"></span>92%</td>
+              <td>MET</td>
+            </tr>
+            <tr>
+              <td>India</td>
+              <td>TSA</td>
+              <td>Lower middle</td>
+              <td>MCV1</td>
+              <td>2024</td>
+              <td><span class="mini-bar mid"></span>62%</td>
+              <td>BELOW</td>
+            </tr>
+            <tr>
+              <td>Nigeria</td>
+              <td>TSS</td>
+              <td>Lower middle</td>
+              <td>MCV1</td>
+              <td>2024</td>
+              <td><span class="mini-bar low"></span>32%</td>
+              <td>BELOW</td>
+            </tr>
+            <tr>
+              <td>Chad</td>
+              <td>TSS</td>
+              <td>Low income</td>
+              <td>MCV1</td>
+              <td>2024</td>
+              <td><span class="mini-bar low short"></span>22%</td>
+              <td>BELOW</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p class="table-note">~211 more rows - scroll to load-</p>
+
+        <div class="table-footer">
+          <span>Showing 1-15 of 49</span>
+          <div class="pager">
+            <button>Prev</button>
+            <span>1</span>
+            <button>Next</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="table-card regional-card">
+        <div class="table-head">
+          <div>
+            <h3>Regional-level coverage table</h3>
+            <p>MCV1 antigen - 2024</p>
+          </div>
+
+          <div class="table-tools">
+            <span>7 Regions</span>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Antigen</th>
+              <th>Year</th>
+              <th>Region</th>
+              <th>Country Met</th>
+              <th>Total Countries</th>
+              <th>% of Region</th>
+              <th>Avg Coverage</th>
+              <th>Herd Immunity<br>Rate</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>MCV1</td>
+              <td>2024</td>
+              <td>TSS</td>
+              <td>36</td>
+              <td>58</td>
+              <td><span class="mini-bar good"></span>62%</td>
+              <td>94.1%</td>
+              <td><span class="mini-bar good short"></span>36%</td>
+            </tr>
+            <tr>
+              <td>MCV1</td>
+              <td>2024</td>
+              <td>TSA</td>
+              <td>14</td>
+              <td>37</td>
+              <td><span class="mini-bar good short"></span>38%</td>
+              <td>97.1%</td>
+              <td><span class="mini-bar good"></span>71%</td>
+            </tr>
+            <tr>
+              <td>MCV1</td>
+              <td>2024</td>
+              <td>NAC</td>
+              <td>13</td>
+              <td>23</td>
+              <td><span class="mini-bar good"></span>57%</td>
+              <td>96.8%</td>
+              <td><span class="mini-bar good long"></span>91%</td>
+            </tr>
+            <tr>
+              <td>MCV1</td>
+              <td>2024</td>
+              <td>TMN</td>
+              <td>11</td>
+              <td>42</td>
+              <td><span class="mini-bar good"></span>26%</td>
+              <td>94.1%</td>
+              <td><span class="mini-bar good"></span>45%</td>
+            </tr>
+            <tr>
+              <td>MCV1</td>
+              <td>2024</td>
+              <td>TLA</td>
+              <td>10</td>
+              <td>48</td>
+              <td><span class="mini-bar good"></span>67%</td>
+              <td>112.2%</td>
+              <td><span class="mini-bar good"></span>75%</td>
+            </tr>
+            <tr>
+              <td>MCV1</td>
+              <td>2024</td>
+              <td>TEC</td>
+              <td>4</td>
+              <td>6</td>
+              <td><span class="mini-bar good"></span>62%</td>
+              <td>94.1%</td>
+              <td><span class="mini-bar good short"></span>71%</td>
+            </tr>
+            <tr>
+              <td>MCV1</td>
+              <td>2024</td>
+              <td>TEA</td>
+              <td>4</td>
+              <td>6</td>
+              <td><span class="mini-bar good"></span>62%</td>
+              <td>94.1%</td>
+              <td><span class="mini-bar good short"></span>71%</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="table-footer">
+          <span>Showing all 7 regions</span>
+        </div>
+      </section>
+
+      <button class="print-btn">Print</button>
+
+      <span class="shape page-blue"></span>
+      <span class="shape page-green"></span>
+      <span class="shape page-purple"></span>
+      <span class="shape page-yellow"></span>
+      <span class="shape page-pink"></span>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>© 2026 VaxInsight</span>
+    <strong>Data sourced from World Health Organization</strong>
+    <span>Database updated: 10 March 2026</span>
+  </footer>
+</body>
+</html>

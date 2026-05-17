@@ -33,8 +33,73 @@ body {
   color: var(--clr-text);
   background: var(--clr-white);
 }
+/* NAV BAR */
+/* ───────── NAVBAR ───────── */
 
-.site-header {
+.nav {
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  border-bottom: 1px solid #e8e8e8;
+  background: #fff;
+}
+
+.nav__logo {
+  min-width: 145px;
+  height: 24px;
+  border: 1.5px solid #111;
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav__logo-text {
+  color: #111;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.nav__links {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  margin-left: 28px;
+}
+
+.nav__link {
+  color: #687084;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: 0.2s ease;
+}
+
+.nav__link:hover {
+  color: #111;
+}
+
+.nav__link--active {
+  color: #fff;
+  background: var(--clr-teal);
+  padding: 8px 14px;
+  border-radius: 6px;
+}
+
+.nav__badge {
+  border: 1.5px solid #111;
+  border-radius: var(--radius-pill);
+  padding: 5px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* .site-header {
   height: var(--nav-h);
   display: flex;
   align-items: center;
@@ -87,7 +152,7 @@ body {
   font-size: 10px;
   font-weight: 700;
   white-space: nowrap;
-}
+} */
 
 .hero {
   height: 275px;
@@ -273,14 +338,19 @@ button,
   background: #fff;
 }
 
+.btn-primary,
+.btn-outline {
+  min-width: 118px;
+}
+
 .dashboard-grid {
   position: relative;
   z-index: 2;
-  width: 86%;
+  width: 100%;
   margin-top: 18px;
   display: grid;
-  grid-template-columns: 445px 600px;
-  gap: 102px;
+  grid-template-columns: minmax(360px, 445px) minmax(420px, 600px);
+  gap: 40px;
 }
 
 .summary-card,
@@ -389,7 +459,7 @@ button,
 }
 
 .country-card {
-  width: 710px;
+  width: min(100%, 900px);
   margin-top: 18px;
   padding: 12px 18px 10px;
 }
@@ -583,16 +653,25 @@ td {
   right: 370px;
   top: 710px;
 }
+.reset-link {
+  height: 34px;
+  background: #fff;
+  color: #111;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 
 /* Responsive layout */
 @media (max-width: 1050px) {
-  .site-header {
+  .nav {
     height: auto;
     flex-wrap: wrap;
     padding: 14px 20px;
   }
 
-  .nav {
+  .nav__links {
     order: 3;
     width: 100%;
     flex-wrap: wrap;

@@ -234,6 +234,7 @@ img { display: block; max-width: 100%; }
 }
 
 .stat-card {
+  min-height: 132px;
   background: var(--clr-white);
   border: 1px solid var(--clr-border);
   border-radius: var(--radius-md);
@@ -248,11 +249,12 @@ img { display: block; max-width: 100%; }
 }
 
 .stat-card__val {
-  font-size: 26px;
+  font-size: clamp(22px, 3vw, 26px);
   font-weight: 700;
   letter-spacing: -0.03em;
   color: var(--clr-teal);
   line-height: 1.1;
+  overflow-wrap: anywhere;
 }
 
 .stat-card__label {
@@ -281,7 +283,7 @@ img { display: block; max-width: 100%; }
 
 .disease-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 14px;
   background: var(--clr-white);
   border: 1px solid var(--clr-border);
@@ -304,12 +306,14 @@ img { display: block; max-width: 100%; }
   flex-direction: column;
   flex: 1;
   gap: 2px;
+  min-width: 0;
 }
 
 .disease-item__name {
   font-size: 14px;
   font-weight: 500;
   color: var(--clr-black);
+  overflow-wrap: anywhere;
 }
 
 .disease-item__code {
@@ -317,6 +321,7 @@ img { display: block; max-width: 100%; }
   font-size: 10px;
   color: var(--clr-subtle);
   letter-spacing: 0.03em;
+  overflow-wrap: anywhere;
 }
 
 .disease-item__badge {
@@ -326,7 +331,10 @@ img { display: block; max-width: 100%; }
   background: #e1f9f2;
   border-radius: var(--radius-pill);
   padding: 3px 10px;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
+
 
 /* decorative blobs inside snapshot */
 .snapshot__blob {
@@ -631,6 +639,21 @@ img { display: block; max-width: 100%; }
 
 @media (max-width: 480px) {
   .stats-grid { grid-template-columns: 1fr; }
+
+  .disease-item {
+  gap: 10px;
+  padding: 12px 14px;
+}
+
+  .disease-item__dot {
+    width: 24px;
+    height: 24px;
+  }
+
+  .disease-item__badge {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
 }
 
 @media (max-width: 1024px) {

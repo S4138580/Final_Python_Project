@@ -185,7 +185,7 @@ body {
 }
 
 #content_lv1A-page2 h1 {
-  font-size: 56px;
+  font-size: 40px;
   font-weight: 700;
   color: #0f172a;
   margin-left: 125px;
@@ -216,6 +216,7 @@ body {
   padding: 30px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   position: relative;
+  margin-top: -40px;
 }
 
 .card1 {
@@ -344,7 +345,7 @@ body {
   color: #6b7280;
   font-size: 16px;
   line-height: 1.55;
-  margin: 8px 0 22px;
+  margin: 8px 0 15px;
 }
 
 .group-title {
@@ -472,7 +473,7 @@ body {
 }
 
 .team-section h1 {
-  margin-bottom: 28px;
+  margin-bottom: 15px;
 }
 
 .team-table-wrap {

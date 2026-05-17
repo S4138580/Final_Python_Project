@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Infection by Economy</title>
+    <title>Above Average Infection Rate</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap"
@@ -60,6 +60,90 @@
           </div>
         </div>
       </div>
+
+      <div class="data-section">
+        <p class="section-eyebrow">Data Explorer</p>
+        <h2>Filter infection cases with above average infection rate</h2>
+
+        <form class="filter-panel" action="/Webpage_6_Average.html" method="GET">
+          <div class="filter-field">
+            <label for="infection">Infection type</label>
+            <select id="infection" name="infection">
+              {{INFECTION_OPTIONS}}
+            </select>
+          </div>
+
+          <div class="filter-field">
+            <label for="year">Year</label>
+            <select id="year" name="year">
+              {{YEAR_OPTIONS}}
+            </select>
+          </div>
+
+          <button class="primary-button" type="submit">Apply Filters</button>
+          <a class="secondary-button" href="/Webpage_6_Average.html">Reset</a>
+        </form>
+
+        <section class="benchmark-card">
+          <div>
+            <p>Global benchmark</p>
+            <h3>{{GLOBAL_TITLE}}</h3>
+            <span>Countries in the table below exceed this global average.</span>
+          </div>
+          <div class="benchmark-circle"></div>
+        </section>
+
+        <div class="dashboard-grid">
+          <section id="above-average-table" class="data-card country-card">
+            <div class="card-heading">
+              <h3>Countries exceeding the global rate</h3>
+              <a class="export-button" href="/Webpage_6_Average.html?{{CSV_QUERY}}">Export CSV</a>
+            </div>
+
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Country</th>
+                  <th>Infection Type</th>
+                  <th>Case per 100k</th>
+                  <th>Year</th>
+                  <th>Above Global By</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{COUNTRY_ROWS}}
+              </tbody>
+            </table>
+
+            <div class="table-footer">
+              <span>{{COUNTRY_SHOWING}}</span>
+              <div class="pager">
+                {{COUNTRY_PREV}}
+                <span class="page-number">{{COUNTRY_PAGE}}</span>
+                {{COUNTRY_NEXT}}
+              </div>
+            </div>
+          </section>
+
+          <aside class="data-card chart-card">
+            <h3>Cases per 100k</h3>
+            <p>Countries above global · {{CHART_LABEL}}</p>
+            <div class="bar-list">
+              {{CHART_ROWS}}
+            </div>
+            <strong>Note: Higher rates may reflect better surveillance, not worse outcomes.</strong>
+          </aside>
+        </div>
+
+        <div class="decor-circle circle-left"></div>
+        <div class="decor-circle circle-bottom"></div>
+      </div>
+
+      <footer class="site-footer">
+        <span>(c) 2026 VaxInsight</span>
+        <strong>Data sourced from World Health Organization</strong>
+        <span>Database updated: 10 March 2026</span>
+      </footer>
     </div>
   </body>
 </html>

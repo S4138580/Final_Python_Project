@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Top Vaccination Improvers</title>
+  <link rel="stylesheet" href="Webpage5.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="nav__logo">VaxInsight</div>
+
+    <nav class="nav__links">
+      <a href="/Webpage1">Home</a>
+      <a href="/Webpage2">Mission</a>
+      <a href="/Webpage3">Vaccination Rates</a>
+      <a href="/Webpage4">Infection by Economy</a>
+      <a class="active" href="/Webpage5">Top Improvers</a>
+      <a href="/Webpage6">Above Average</a>
+    </nav>
+
+    <span class="nav__badge">Data sourced from WHO</span>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero__copy">
+        <h1>Top Vaccination<br>Improvers</h1>
+        <p>WHO immunisation data, made simple for everyone</p>
+      </div>
+
+      <span class="shape shape--pink"></span>
+      <span class="shape shape--blue"></span>
+      <span class="shape shape--yellow"></span>
+      <span class="shape shape--green"></span>
+    </section>
+
+    <section class="data-section">
+      <h2>Filter vaccination data by country or region and year. View coverage rates and herd immunity levels.</h2>
+
+      <form class="filter-panel" method="get" action="/Webpage5">
+        <div class="field">
+          <label>Select Antigen</label>
+          <select name="antigen">
+            {{ANTIGEN_OPTIONS}}
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Select Start Year</label>
+          <select name="start_year">
+            {{START_YEAR_OPTIONS}}
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Select End Year</label>
+          <select name="end_year">
+            {{END_YEAR_OPTIONS}}
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Top Countries</label>
+          <select name="limit">
+            {{TOP_COUNTRY_OPTIONS}}
+          </select>
+        </div>
+
+        <div class="field field--wide">
+          <label>Show</label>
+          <div class="segmented">
+            <label>
+              <input type="radio" name="mode" value="gains" {{GAINS_CHECKED}} />
+              <span>Biggest gains</span>
+            </label>
+            <label>
+              <input type="radio" name="mode" value="declines" {{DECLINES_CHECKED}} />
+              <span>Biggest declines</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="filter-actions">
+          <button type="submit" class="btn-primary">Apply Filters</button>
+          <a href="/Webpage5" class="btn-outline">Reset</a>
+        </div>
+      </form>
+
+      <section class="summary-strip">
+        <article class="summary-card">
+          <strong>{{BEST_IMPROVEMENT}}</strong>
+          <span>Biggest single improvement</span>
+          <small>{{BEST_COUNTRY}}</small>
+        </article>
+
+        <article class="summary-card">
+          <strong>{{AVG_IMPROVEMENT}}</strong>
+          <span>{{AVG_LABEL}}</span>
+          <small>{{RESULT_SUBTITLE}}</small>
+        </article>
+
+        <article class="summary-card">
+          <strong>{{MOST_REGION}}</strong>
+          <span>Most represented region</span>
+          <small>{{MOST_REGION_SUB}}</small>
+        </article>
+
+        <article class="summary-card">
+          <strong>{{MOST_INCOME}}</strong>
+          <span>Most represented income group</span>
+          <small>{{MOST_INCOME_SUB}}</small>
+        </article>
+      </section>
+
+      <section class="region-card">
+        <h3>Coverage by Region</h3>
+        <p>{{RESULT_SUBTITLE}}</p>
+
+        <div class="region-list">
+          {{REGION_BARS}}
+        </div>
+      </section>
+
+      <section class="chart-card">
+        <h3>{{RESULT_TITLE}}</h3>
+        <p>{{RESULT_SUBTITLE}}</p>
+
+        <div class="bar-list">
+          {{IMPROVER_BARS}}
+        </div>
+      </section>
+
+      <section class="table-card">
+        <h3>Detailed Results</h3>
+        <p>{{RESULT_SUBTITLE}} - {{SORT_LABEL}}</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Country</th>
+              <th>Region</th>
+              <th>Income Group</th>
+              <th>Start Rate</th>
+              <th>End Rate</th>
+              <th>Rate Increase</th>
+              <th>Trend</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{DETAIL_TABLE_ROWS}}
+          </tbody>
+        </table>
+      </section>
+
+      <button class="print-btn" type="button">Print</button>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>© 2026 VaxInsight</span>
+    <strong>Data sourced from World Health Organization</strong>
+    <span>Database updated: 10 March 2026</span>
+  </footer>
+</body>
+</html>

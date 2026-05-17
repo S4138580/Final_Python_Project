@@ -1,2 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VaxInsight — Vaccination data, made clear for everyone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="Webpage1.css" />
+</head>
+<body>
 
+
+  <!-- ─── NAV ─────────────────────────────────────────────────── -->
+  <header class="nav">
+    <div class="nav__logo">
+      <span class="nav__logo-dot"></span>
+      <span class="nav__logo-text">VaxInsight</span>
+    </div>
+    <nav class="nav__links">
+      <a href="Webpage1.html" class="nav__link nav__link--active">Home</a>
+      <a href="#" class="nav__link">Mission</a>
+      <a href="Webpage3.html" class="nav__link">Vaccination Rates</a>
+      <a href="#" class="nav__link">Infection by Economy</a>
+      <a href="#" class="nav__link">Top Improvers</a>
+      <a href="#" class="nav__link">Above Average</a>
+    </nav>
+    <span class="nav__badge">Data sourced from WHO</span>
+  </header>
+
+  <!-- ─── HERO ─────────────────────────────────────────────────── -->
+  <section class="hero">
+
+    <!-- decorative blobs -->
+    <div class="blob blob--yellow"  aria-hidden="true"></div>
+    <div class="blob blob--pink"    aria-hidden="true"></div>
+    <div class="blob blob--teal"    aria-hidden="true"></div>
+    <div class="blob blob--purple"  aria-hidden="true"></div>
+    <div class="blob blob--green"   aria-hidden="true"></div>
+    <div class="blob blob--coral"   aria-hidden="true"></div>
+    <div class="blob blob--blue"    aria-hidden="true"></div>
+    <!-- tiny square accent -->
+    <div class="hero__sq" aria-hidden="true"></div>
+
+    <div class="hero__content">
+      <h1 class="hero__h1">
+        Vaccination data,<br>
+        <span class="hero__accent">made clear</span><br>
+        for everyone
+      </h1>
+      <p class="hero__sub">WHO immunisation data, made simple for everyone</p>
+    </div>
+  </section>
+
+  <!-- ─── SNAPSHOT ─────────────────────────────────────────────── -->
+  <section class="snapshot">
+
+    <!-- left col: stats -->
+    <div class="snapshot__left">
+      <p class="snapshot__eyebrow">Key facts from our database</p>
+      <h2 class="snapshot__heading">A snapshot of the data</h2>
+
+      <div class="stats-grid">
+        <div class="stat-card stat-card--bordered">
+          <span class="stat-card__val">2000–2024</span>
+          <span class="stat-card__label">Years of Data Available</span>
+          <span class="stat-card__sub">25 years of comprehensive records</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card__val">217</span>
+          <span class="stat-card__label">Countries Tracked</span>
+          <span class="stat-card__sub">Across all WHO regions</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-card__val">10.62 B</span>
+          <span class="stat-card__label">Vaccine Doses Recorded</span>
+          <span class="stat-card__sub">Total doses across all antigens</span>
+        </div>
+        <div class="stat-card stat-card--bordered">
+          <span class="stat-card__val">19.2 M</span>
+          <span class="stat-card__label">Infection Cases Recorded</span>
+          <span class="stat-card__sub">Preventable disease cases tracked</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- right col: diseases -->
+    <div class="snapshot__right">
+      <!-- decorative blob inside section -->
+      <div class="snapshot__blob" aria-hidden="true"></div>
+      <p class="snapshot__eyebrow">Diseases covered</p>
+      <h2 class="snapshot__heading">Preventable diseases in our database</h2>
+
+      <ul class="disease-list">
+        <li class="disease-item">
+          <span class="disease-item__dot disease-item__dot--measles"></span>
+          <div class="disease-item__info">
+            <span class="disease-item__name">Measles</span>
+            <span class="disease-item__code">MEASLES_CASES</span>
+          </div>
+          <span class="disease-item__badge">Tracked</span>
+        </li>
+        <li class="disease-item">
+          <span class="disease-item__dot disease-item__dot--rubella"></span>
+          <div class="disease-item__info">
+            <span class="disease-item__name">Rubella</span>
+            <span class="disease-item__code">RUBELLA_CASES</span>
+          </div>
+          <span class="disease-item__badge">Tracked</span>
+        </li>
+        <li class="disease-item">
+          <span class="disease-item__dot disease-item__dot--pertussis"></span>
+          <div class="disease-item__info">
+            <span class="disease-item__name">Pertussis</span>
+            <span class="disease-item__code">PERTUSSIS_CASES</span>
+          </div>
+          <span class="disease-item__badge">Tracked</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- extra blobs around snapshot -->
+    <div class="snapshot__blob-tl" aria-hidden="true"></div>
+    <div class="snapshot__blob-br" aria-hidden="true"></div>
+  </section>
+
+  <!-- ─── EXPLORE ───────────────────────────────────────────────── -->
+  <section class="explore">
+    <p class="explore__eyebrow">Explore the data</p>
+    <h2 class="explore__heading">Navigate to what matters to you</h2>
+    <p class="explore__sub">Three focused views — from high-level summaries to deep-dive analysis.</p>
+
+    <div class="cards-row">
+      <article class="exp-card">
+        <div class="exp-card__accent exp-card__accent--purple"></div>
+        <div class="exp-card__icon exp-card__icon--purple"></div>
+        <h3 class="exp-card__title">Mission</h3>
+        <p class="exp-card__body">
+    Understand why vaccination matters through clear and accessible public health insights designed for students, parents, and researchers.
+        </p>
+        <a href="#" class="exp-card__link exp-card__link--purple">Read mission →</a>
+      </article>
+      <article class="exp-card">
+        <div class="exp-card__accent exp-card__accent--teal"></div>
+        <div class="exp-card__icon exp-card__icon--teal"></div>
+        <h3 class="exp-card__title">Vaccination Rates</h3>
+        <p class="exp-card__body">Compare countries meeting vaccination targets by region, antigen, and year. See which regions are leading and which are falling behind.</p>
+        <a href="Webpage3.html" class="exp-card__link exp-card__link--teal">Explore rates →</a>
+      </article>
+
+      <article class="exp-card">
+        <div class="exp-card__accent exp-card__accent--yellow"></div>
+        <div class="exp-card__icon exp-card__icon--yellow"></div>
+        <h3 class="exp-card__title">Infection by Economy</h3>
+        <p class="exp-card__body">Explore infection cases per 100,000 people across different economic groups — developed, developing, and least developed countries.</p>
+        <a href="#" class="exp-card__link exp-card__link--yellow">Explore infections →</a>
+      </article>
+
+      <article class="exp-card">
+        <div class="exp-card__accent exp-card__accent--coral"></div>
+        <div class="exp-card__icon exp-card__icon--coral"></div>
+        <h3 class="exp-card__title">Top Improvers</h3>
+        <p class="exp-card__body">Find countries that achieved the biggest jump in vaccination rates over any time period — for any antigen type.</p>
+        <a href="#" class="exp-card__link exp-card__link--coral">Find improvers →</a>
+      </article>
+      <article class="exp-card">
+        <div class="exp-card__accent exp-card__accent--pink"></div>
+        <div class="exp-card__icon exp-card__icon--pink"></div>
+        <h3 class="exp-card__title">Above Average</h3>
+        <p class="exp-card__body">
+          Identify countries performing above the global vaccination average and compare long-term public health progress across regions.
+        </p>
+        <a href="#" class="exp-card__link exp-card__link--pink">View insights →</a>
+      </article>
+    </div>
+
+    <!-- bottom-right floating blob -->
+    <div class="explore__blob" aria-hidden="true"></div>
+    <!-- tiny square accent -->
+    <div class="explore__sq" aria-hidden="true"></div>
+  </section>
+
+  <!-- ─── FOOTER ────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <span class="footer__copy">© 2026 VaxInsight</span>
+    <a href="#" class="footer__source">Data sourced from World Health Organization</a>
+    <span class="footer__date">Database updated: 10 March 2026</span>
+  </footer>
+
+</body>
+</html>
 

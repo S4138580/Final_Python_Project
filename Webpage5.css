@@ -18,7 +18,7 @@
   --radius-pill: 999px;
   --nav-h: 48px;
   --font-display:  'Instrument Serif', Georgia, serif;
-  --font-body:     'DM Sans', sans-serif;
+  --font-body: "DM Sans", Arial, sans-serif;
   --font-mono:     'DM Mono', monospace;
 }
 
@@ -96,9 +96,9 @@ body {
 }
 
 .hero h1 {
-  color: #000;
-  font-size: clamp(56px, 8vw, 92px);
-  line-height: 1.1;
+  font-family: var(--font-body);
+  font-size: 78px;
+  line-height: 1.05;
   letter-spacing: -3px;
   font-weight: 800;
 }
@@ -291,9 +291,9 @@ body {
 
 .summary-card span,
 .summary-card small {
-  display: block;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.35;
 }
 
 .summary-card small {
@@ -333,7 +333,7 @@ body {
   align-items: center;
   gap: 12px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
 }
 
 .region-track {
@@ -431,13 +431,14 @@ th {
   font-size: 12px;
   text-transform: uppercase;
   padding-bottom: 12px;
+  font-weight: 700;
 }
 
 td {
   color: #050505;
   font-size: 12px;
   padding: 10px 0;
-  font-weight: 800;
+  font-weight: 500;
 }
 
 .trend-bar {

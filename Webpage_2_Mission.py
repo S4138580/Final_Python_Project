@@ -5,14 +5,14 @@ DATABASE = "Database/persona_team.db"
 TEMPLATE = "Webpage_2_Mission.html"
 
 
-def persona_icon(label):
-    icons = {
-        "PERSONA 1": "P1",
-        "PERSONA 2": "P2",
-        "PERSONA 3": "H1",
-        "PERSONA 4": "H2",
+def persona_image(label):
+    images = {
+        "PERSONA 1": ("assets/parent1.png", "assets/parent1.png"),
+        "PERSONA 2": ("assets/parent2.png", "assets/parent2.png"),
+        "PERSONA 3": ("assets/officer1.png", "assets/officer1.png"),
+        "PERSONA 4": ("assets/officer2.png", "assets/officer2.png"),
     }
-    return icons.get(label, "U")
+    return images.get(label, ("assets/parent1.png", "assets/parent1.png"))
 
 
 def render_persona_card(persona):
@@ -23,10 +23,11 @@ def render_persona_card(persona):
     description = persona[4]
     persona_label = persona[5]
     border_color = persona[6]
+    image_src, fallback_src = persona_image(persona_label)
 
     return f"""
     <article class="persona-card border-{border_color}">
-      <div class="persona-avatar" aria-hidden="true">{persona_icon(persona_label)}</div>
+      <img class="persona-avatar" src="{image_src}" alt="{name}" onerror="this.onerror=null;this.src='{fallback_src}'" />
       <div class="persona-info">
         <h3>{name}</h3>
         <p class="persona-meta">

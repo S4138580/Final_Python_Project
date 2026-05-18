@@ -12,6 +12,10 @@ need_debugging_help = True
 class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
     pages = {}
 
+    def end_headers(self):
+        self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+        super().end_headers()
+
     def do_GET(self):
         parsed_url = urlparse(self.path)
         debugging_helper(f"A web browser wants to GET the following: {parsed_url.path}")
@@ -42,12 +46,16 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
             super().do_GET()
 
 
+class ReusableThreadingTCPServer(socketserver.ThreadingTCPServer):
+    allow_reuse_address = True
+
+
 def host_site():
     port = 8000
 
-    with socketserver.TCPServer(("", port), MyRequestHandler) as httpd:
+    with ReusableThreadingTCPServer(("", port), MyRequestHandler) as httpd:
         print("Using your favourite browser, go to:\n")
-        print(f"http://localhost:{port}/Webpage_3_Mission.html\n")
+        print(f"http://localhost:{port}/Webpage_2_Mission.html\n")
         httpd.serve_forever()
 
 

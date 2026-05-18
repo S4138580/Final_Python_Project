@@ -4,6 +4,18 @@ import pyhtml
 DATABASE = "Database/immunisation.db"
 TEMPLATE = "Webpage_4_Economy.html"
 ROWS_PER_PAGE = 5
+ORDER_OPTIONS = [
+    ("country_az", "A-z"),
+    ("country_za", "Z-a"),
+    ("cases_desc", "Total cases high-low"),
+    ("cases_asc", "Total cases low-high"),
+]
+ORDER_BY_SQL = {
+    "country_az": "c.name ASC, i.cases DESC",
+    "country_za": "c.name DESC, i.cases DESC",
+    "cases_desc": "i.cases DESC, c.name ASC",
+    "cases_asc": "i.cases ASC, c.name ASC",
+}
 
 
 def get_first_value(form_data, key, default_value):
@@ -33,29 +45,35 @@ def format_rate(value):
     return text.rstrip("0").rstrip(".")
 
 
-def make_options(rows, selected_value):
+def make_options(rows, selected_value, with_placeholder=False):
     html = ""
-    for row in rows:
-        value = str(row[0])
-        label = str(row[1])
-        selected = ""
-        if value == str(selected_value):
-            selected = ' selected="selected"'
-        html += f'<option value="{value}"{selected}>{label}</option>'
+    if with_placeholder:
+        html += '<option value="" selected disabled>Select</option>'
+        for row in rows:
+            html += f'<option value="{row[0]}">{row[1]}</option>'
+    else:
+        for row in rows:
+            value = str(row[0])
+            label = str(row[1])
+            selected = ' selected="selected"' if value == str(selected_value) else ""
+            html += f'<option value="{value}"{selected}>{label}</option>'
     return html
 
 
-def build_query_string(economy, infection, year, country_page):
+def build_query_string(economy, infection, year, order_by, country_page):
     return (
         f"economy={economy}"
         f"&infection={infection}"
         f"&year={year}"
+        f"&order_by={order_by}"
         f"&country_page={country_page}"
+        f"&submitted=1"
     )
 
 
-def get_country_rows(economy, infection, year, country_page):
+def get_country_rows(economy, infection, year, order_by, country_page):
     offset = (country_page - 1) * ROWS_PER_PAGE
+    order_clause = ORDER_BY_SQL[order_by]
     query = f"""
     SELECT it.description, c.name, e.phase, i.cases,
            ROUND((i.cases / cp.population) * 100000, 2) AS case_per_100k
@@ -67,14 +85,15 @@ def get_country_rows(economy, infection, year, country_page):
     WHERE e.economyID = {economy}
       AND i.inf_type = '{infection}'
       AND i.year = {year}
-    ORDER BY i.cases DESC, c.name ASC
+    ORDER BY {order_clause}
     LIMIT {ROWS_PER_PAGE}
     OFFSET {offset};
     """
     return pyhtml.get_results_from_query(DATABASE, query)
 
 
-def get_all_country_rows(economy, infection, year):
+def get_all_country_rows(economy, infection, year, order_by):
+    order_clause = ORDER_BY_SQL[order_by]
     query = f"""
     SELECT it.description, c.name, e.phase, i.cases,
            ROUND((i.cases / cp.population) * 100000, 2) AS case_per_100k
@@ -86,7 +105,7 @@ def get_all_country_rows(economy, infection, year):
     WHERE e.economyID = {economy}
       AND i.inf_type = '{infection}'
       AND i.year = {year}
-    ORDER BY i.cases DESC, c.name ASC;
+    ORDER BY {order_clause};
     """
     return pyhtml.get_results_from_query(DATABASE, query)
 
@@ -236,7 +255,7 @@ def render_chart(rows):
     return html
 
 
-def render_pager(economy, infection, year, country_page, total_rows):
+def render_pager(economy, infection, year, order_by, country_page, total_rows):
     total_pages = max(1, ((total_rows - 1) // ROWS_PER_PAGE) + 1)
 
     prev_page = max(1, country_page - 1)
@@ -249,8 +268,8 @@ def render_pager(economy, infection, year, country_page, total_rows):
     if country_page >= total_pages:
         next_class = " disabled"
 
-    prev_query = build_query_string(economy, infection, year, prev_page)
-    next_query = build_query_string(economy, infection, year, next_page)
+    prev_query = build_query_string(economy, infection, year, order_by, prev_page)
+    next_query = build_query_string(economy, infection, year, order_by, next_page)
 
     return (
         f'<a class="{prev_class}" href="/Webpage_4_Economy.html?{prev_query}#country-table">Prev</a>',
@@ -278,10 +297,12 @@ def get_page_html(form_data):
     default_economy = 3
     default_infection = "MEA"
     default_year = 2020
+    default_order_by = "country_az"
 
     economy = to_int(get_first_value(form_data, "economy", default_economy), default_economy)
     infection = get_first_value(form_data, "infection", default_infection)
     year = to_int(get_first_value(form_data, "year", default_year), default_year)
+    order_by = get_first_value(form_data, "order_by", default_order_by)
     country_page = to_int(get_first_value(form_data, "country_page", 1), 1)
 
     valid_economies = [row[0] for row in economy_options]
@@ -294,6 +315,8 @@ def get_page_html(form_data):
         infection = default_infection
     if year not in valid_years:
         year = default_year
+    if order_by not in ORDER_BY_SQL:
+        order_by = default_order_by
     if country_page < 1:
         country_page = 1
 
@@ -304,7 +327,7 @@ def get_page_html(form_data):
 
     export_type = get_first_value(form_data, "export", "")
     if export_type == "country":
-        rows = get_all_country_rows(economy, infection, year)
+        rows = get_all_country_rows(economy, infection, year, order_by)
         return make_csv_response(
             "country_infection_cases.csv",
             ["Disease", "Country", "Economic Phase", "Total Cases", "Case per 100k"],
@@ -319,7 +342,7 @@ def get_page_html(form_data):
             rows,
         )
 
-    country_rows = get_country_rows(economy, infection, year, country_page)
+    country_rows = get_country_rows(economy, infection, year, order_by, country_page)
     summary_rows = get_summary_rows(economy, infection, year)
     chart_rows = get_chart_rows(infection, year)
 
@@ -341,17 +364,23 @@ def get_page_html(form_data):
         economy,
         infection,
         year,
+        order_by,
         country_page,
         country_count,
     )
-    csv_query = build_query_string(economy, infection, year, country_page)
+    csv_query = build_query_string(economy, infection, year, order_by, country_page)
     country_csv_query = csv_query + "&export=country"
     summary_csv_query = csv_query + "&export=summary"
 
+    show_data = "submitted" in form_data
+    data_style = "" if show_data else 'style="display:none"'
+    placeholder = not show_data
+
     replacements = {
-        "{{ECONOMY_OPTIONS}}": make_options(economy_options, economy),
-        "{{INFECTION_OPTIONS}}": make_options(infection_options, infection),
-        "{{YEAR_OPTIONS}}": make_options(year_options, year),
+        "{{ECONOMY_OPTIONS}}": make_options(economy_options, economy, with_placeholder=placeholder),
+        "{{INFECTION_OPTIONS}}": make_options(infection_options, infection, with_placeholder=placeholder),
+        "{{YEAR_OPTIONS}}": make_options(year_options, year, with_placeholder=placeholder),
+        "{{ORDER_OPTIONS}}": make_options(ORDER_OPTIONS, order_by, with_placeholder=placeholder),
         "{{COUNTRY_ROWS}}": render_country_table(country_rows),
         "{{SUMMARY_ROWS}}": render_summary_table(summary_rows),
         "{{CHART_ROWS}}": render_chart(chart_rows),
@@ -363,6 +392,7 @@ def get_page_html(form_data):
         "{{COUNTRY_PAGE}}": country_page_text,
         "{{COUNTRY_CSV_QUERY}}": country_csv_query,
         "{{SUMMARY_CSV_QUERY}}": summary_csv_query,
+        "{{DATA_SECTION_STYLE}}": data_style,
     }
 
     for placeholder in replacements:

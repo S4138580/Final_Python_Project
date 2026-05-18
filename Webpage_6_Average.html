@@ -80,11 +80,19 @@
             </select>
           </div>
 
+          <div class="filter-field">
+            <label for="order_by">Order by</label>
+            <select id="order_by" name="order_by">
+              {{ORDER_OPTIONS}}
+            </select>
+          </div>
+
+          <input type="hidden" name="submitted" value="1" />
           <button class="primary-button" type="submit">Apply Filters</button>
           <a class="secondary-button" href="/Webpage_6_Average.html">Reset</a>
         </form>
 
-        <section class="benchmark-card">
+        <section class="benchmark-card" {{DATA_SECTION_STYLE}}>
           <div>
             <p>Global benchmark</p>
             <h3>{{GLOBAL_TITLE}}</h3>
@@ -93,7 +101,7 @@
           <div class="benchmark-circle"></div>
         </section>
 
-        <div class="dashboard-grid">
+        <div class="dashboard-grid" {{DATA_SECTION_STYLE}}>
           <section id="above-average-table" class="data-card country-card">
             <div class="card-heading">
               <h3>Countries exceeding the global rate</h3>

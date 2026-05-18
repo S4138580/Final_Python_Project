@@ -84,11 +84,19 @@
             </select>
           </div>
 
+          <div class="filter-field">
+            <label for="order_by">Order by</label>
+            <select id="order_by" name="order_by">
+              {{ORDER_OPTIONS}}
+            </select>
+          </div>
+
+          <input type="hidden" name="submitted" value="1" />
           <button class="primary-button" type="submit">Apply Filters</button>
           <a class="secondary-button" href="/Webpage_4_Economy.html">Reset</a>
         </form>
 
-        <div class="dashboard-grid">
+        <div class="dashboard-grid" {{DATA_SECTION_STYLE}}>
           <section id="country-table" class="data-card country-card">
             <div class="card-heading">
               <h3>Country-level data table</h3>
@@ -129,7 +137,7 @@
           </aside>
         </div>
 
-        <div class="summary-wrap">
+        <div class="summary-wrap" {{DATA_SECTION_STYLE}}>
           <div class="decor-circle circle-left"></div>
           <div class="decor-circle circle-bottom"></div>
 

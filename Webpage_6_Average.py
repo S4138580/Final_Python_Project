@@ -4,6 +4,18 @@ import pyhtml
 DATABASE = "Database/immunisation.db"
 TEMPLATE = "Webpage_6_Average.html"
 ROWS_PER_PAGE = 5
+ORDER_OPTIONS = [
+    ("country_az", "A-z"),
+    ("country_za", "Z-a"),
+    ("rate_desc", "Rate high-low"),
+    ("rate_asc", "Rate low-high"),
+]
+ORDER_BY_SQL = {
+    "country_az": "country_name ASC, country_rate DESC",
+    "country_za": "country_name DESC, country_rate DESC",
+    "rate_desc": "country_rate DESC, country_name ASC",
+    "rate_asc": "country_rate ASC, country_name ASC",
+}
 
 
 def get_first_value(form_data, key, default_value):
@@ -27,15 +39,18 @@ def format_rate(value):
     return text.rstrip("0").rstrip(".")
 
 
-def make_options(rows, selected_value):
+def make_options(rows, selected_value, with_placeholder=False):
     html = ""
-    for row in rows:
-        value = str(row[0])
-        label = str(row[1])
-        selected = ""
-        if value == str(selected_value):
-            selected = ' selected="selected"'
-        html += f'<option value="{value}"{selected}>{label}</option>'
+    if with_placeholder:
+        html += '<option value="" selected disabled>Select</option>'
+        for row in rows:
+            html += f'<option value="{row[0]}">{row[1]}</option>'
+    else:
+        for row in rows:
+            value = str(row[0])
+            label = str(row[1])
+            selected = ' selected="selected"' if value == str(selected_value) else ""
+            html += f'<option value="{value}"{selected}>{label}</option>'
     return html
 
 
@@ -43,8 +58,8 @@ def build_where_clause(infection, year):
     return f"WHERE i.inf_type = '{infection}' AND i.year = {year}"
 
 
-def build_query_string(infection, year, country_page):
-    return f"infection={infection}&year={year}&country_page={country_page}"
+def build_query_string(infection, year, order_by, country_page):
+    return f"infection={infection}&year={year}&order_by={order_by}&country_page={country_page}&submitted=1"
 
 
 def get_global_rate(infection, year):
@@ -79,9 +94,10 @@ def get_above_average_count(infection, year, global_rate):
     return rows[0][0]
 
 
-def get_above_average_rows(infection, year, global_rate, country_page):
+def get_above_average_rows(infection, year, global_rate, order_by, country_page):
     offset = (country_page - 1) * ROWS_PER_PAGE
     where_clause = build_where_clause(infection, year)
+    order_clause = ORDER_BY_SQL[order_by]
     query = f"""
     SELECT country_name, disease, country_rate, year_value,
            ROUND(country_rate - {global_rate}, 2) AS above_global_by
@@ -97,15 +113,16 @@ def get_above_average_rows(infection, year, global_rate, country_page):
       {where_clause}
     )
     WHERE country_rate > {global_rate}
-    ORDER BY above_global_by DESC, country_name ASC
+    ORDER BY {order_clause}
     LIMIT {ROWS_PER_PAGE}
     OFFSET {offset};
     """
     return pyhtml.get_results_from_query(DATABASE, query)
 
 
-def get_all_above_average_rows(infection, year, global_rate):
+def get_all_above_average_rows(infection, year, global_rate, order_by):
     where_clause = build_where_clause(infection, year)
+    order_clause = ORDER_BY_SQL[order_by]
     query = f"""
     SELECT country_name, disease, country_rate, year_value,
            ROUND(country_rate - {global_rate}, 2) AS above_global_by
@@ -121,7 +138,7 @@ def get_all_above_average_rows(infection, year, global_rate):
       {where_clause}
     )
     WHERE country_rate > {global_rate}
-    ORDER BY above_global_by DESC, country_name ASC;
+    ORDER BY {order_clause};
     """
     return pyhtml.get_results_from_query(DATABASE, query)
 
@@ -211,7 +228,7 @@ def render_chart(rows, global_rate):
     return html
 
 
-def render_pager(infection, year, country_page, total_rows):
+def render_pager(infection, year, order_by, country_page, total_rows):
     total_pages = max(1, ((total_rows - 1) // ROWS_PER_PAGE) + 1)
     prev_page = max(1, country_page - 1)
     next_page = min(total_pages, country_page + 1)
@@ -223,8 +240,8 @@ def render_pager(infection, year, country_page, total_rows):
     if country_page >= total_pages:
         next_class = " disabled"
 
-    prev_query = build_query_string(infection, year, prev_page)
-    next_query = build_query_string(infection, year, next_page)
+    prev_query = build_query_string(infection, year, order_by, prev_page)
+    next_query = build_query_string(infection, year, order_by, next_page)
 
     return (
         f'<a class="{prev_class}" href="/Webpage_6_Average.html?{prev_query}#above-average-table">Prev</a>',
@@ -254,9 +271,11 @@ def get_page_html(form_data):
 
     default_infection = "MEA"
     default_year = 2020
+    default_order_by = "country_az"
 
     infection = get_first_value(form_data, "infection", default_infection)
     year_value = get_first_value(form_data, "year", default_year)
+    order_by = get_first_value(form_data, "order_by", default_order_by)
     country_page = to_int(get_first_value(form_data, "country_page", 1), 1)
 
     valid_infections = [row[0] for row in infection_options]
@@ -266,6 +285,8 @@ def get_page_html(form_data):
         infection = default_infection
     if year_value not in valid_years:
         year_value = str(default_year)
+    if order_by not in ORDER_BY_SQL:
+        order_by = default_order_by
 
     year = to_int(year_value, default_year)
 
@@ -280,14 +301,14 @@ def get_page_html(form_data):
 
     export_type = get_first_value(form_data, "export", "")
     if export_type == "csv":
-        rows = get_all_above_average_rows(infection, year, global_rate)
+        rows = get_all_above_average_rows(infection, year, global_rate, order_by)
         return make_csv_response(
             "countries_above_global_rate.csv",
             ["Country", "Infection Type", "Case per 100k", "Year", "Above Global By"],
             rows,
         )
 
-    rows = get_above_average_rows(infection, year, global_rate, country_page)
+    rows = get_above_average_rows(infection, year, global_rate, order_by, country_page)
 
     start_row = 0
     end_row = 0
@@ -303,17 +324,23 @@ def get_page_html(form_data):
     country_prev, country_next, country_page_text = render_pager(
         infection,
         year,
+        order_by,
         country_page,
         country_count,
     )
-    csv_query = build_query_string(infection, year, country_page) + "&export=csv"
+    csv_query = build_query_string(infection, year, order_by, country_page) + "&export=csv"
 
     with open(TEMPLATE, "r", encoding="utf-8") as file:
         page_html = file.read()
 
+    show_data = "submitted" in form_data
+    data_style = "" if show_data else 'style="display:none"'
+    placeholder = not show_data
+
     replacements = {
-        "{{INFECTION_OPTIONS}}": make_options(infection_options, infection),
-        "{{YEAR_OPTIONS}}": make_options(year_options, str(year)),
+        "{{INFECTION_OPTIONS}}": make_options(infection_options, infection, with_placeholder=placeholder),
+        "{{YEAR_OPTIONS}}": make_options(year_options, str(year), with_placeholder=placeholder),
+        "{{ORDER_OPTIONS}}": make_options(ORDER_OPTIONS, order_by, with_placeholder=placeholder),
         "{{GLOBAL_TITLE}}": global_title,
         "{{COUNTRY_ROWS}}": render_country_table(rows, global_rate, country_page),
         "{{COUNTRY_SHOWING}}": f"Showing {start_row}-{end_row} of {country_count}",
@@ -323,6 +350,7 @@ def get_page_html(form_data):
         "{{CHART_ROWS}}": render_chart(rows, global_rate),
         "{{CHART_LABEL}}": chart_label,
         "{{CSV_QUERY}}": csv_query,
+        "{{DATA_SECTION_STYLE}}": data_style,
     }
 
     for placeholder in replacements:

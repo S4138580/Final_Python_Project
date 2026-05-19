@@ -43,9 +43,7 @@
     <section class="data-section">
       <div class="section-label">Data Explorer</div>
       <h2>Filter vaccination data by country or region and year. View coverage rates and herd immunity levels.</h2>
-
-      {{ERROR_BOX}}
-
+          {{ERROR_BOX}}
       <form class="filter-panel" method="get" action="/Webpage3">
         <div class="field">
           <label>Select Antigen</label>
@@ -62,23 +60,28 @@
         </div>
 
         <div class="field">
-          <label>Select Country</label>
-          <select name="country">
-              {{COUNTRY_OPTIONS}}
-          </select>
-        </div>
-
-        <div class="field">
           <label>Select Region</label>
           <select name="region">
            {{REGION_OPTIONS}} 
           </select>
         </div>
 
+        <div class="field">
+          <label>Select Country</label>
+          <select name="country">
+              {{COUNTRY_OPTIONS}}
+          </select>
+        </div>
+
         <div class="field target-field">
           <label>Target</label>
-          <input type="number" name="target" placeholder="Enter target %" value="{{TARGET_VALUE}}" />
-        </div>
+        <input
+          type="number"
+          name="target"
+          min="0"
+          max="100"
+          placeholder="Enter target %"
+        />
 
         <div class="filter-actions">
           <button type="submit" class="btn-primary">Apply Filters</button>
@@ -126,7 +129,7 @@
         </section>
       </div>
 
-      <section class="table-card country-card" id="country-table">
+      <section class="table-card country-card">
         <div class="table-head">
           <div>
             <h3>Country-level coverage table</h3>
@@ -134,16 +137,7 @@
           </div>
 
           <div class="table-tools">
-            <form class="country-search" method="get" action="/Webpage3.html">
-              <input type="hidden" name="antigen" value="{{SELECTED_ANTIGEN_VALUE}}" />
-              <input type="hidden" name="year" value="{{SELECTED_YEAR_VALUE}}" />
-              <input type="hidden" name="region" value="{{SELECTED_REGION_VALUE}}" />
-              <input type="hidden" name="country" value="{{SELECTED_COUNTRY_VALUE}}" />
-              <input type="hidden" name="target" value="{{TARGET_VALUE}}" />
-              <input type="hidden" name="country_page" value="1" />
-              <input type="search" name="country_search" placeholder="Search country" value="{{COUNTRY_SEARCH_VALUE}}" />
-              <button type="submit">Search</button>
-            </form>
+            <span>Search country</span>
             <span>{{COUNTRY_COUNT_LABEL}}</span>
           </div>
         </div>
@@ -166,12 +160,14 @@
           </tbody>
         </table>
 
-        <p class="table-note">{{COUNTRY_TABLE_NOTE}}</p>
+        <p class="table-note">~211 more rows - scroll to load-</p>
 
         <div class="table-footer">
-          <span>{{COUNTRY_TABLE_PAGE_LABEL}}</span>
+          <span>Showing 1-15 of 49</span>
           <div class="pager">
-            {{COUNTRY_PAGER}}
+            <button>Prev</button>
+            <span>1</span>
+            <button>Next</button>
           </div>
         </div>
       </section>

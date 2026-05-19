@@ -243,10 +243,54 @@ body {
   position: relative;
   z-index: 2;
   margin-top: 6px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   font-size: 22px;
   line-height: 1.2;
   letter-spacing: -0.5px;
+}
+
+.formula-note {
+  position: relative;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 12px;
+  color: var(--clr-teal);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: help;
+}
+
+.formula-note > span:first-child {
+  border: 1.5px solid var(--clr-border);
+  border-radius: var(--radius-pill);
+  background: #fff;
+  padding: 5px 10px;
+}
+
+.formula-note::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 0;
+  top: 32px;
+  width: 360px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--clr-border);
+  border-radius: 8px;
+  background: #fff;
+  color: #111827;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+  line-height: 1.35;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: 0.18s ease;
+}
+
+.formula-note:hover::after,
+.formula-note:focus::after {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .filter-panel {
@@ -337,7 +381,8 @@ body {
 }
 
 button,
-.table-tools span {
+.table-tools span,
+.country-search input {
   font-family: inherit;
 }
 
@@ -345,6 +390,7 @@ button,
 .btn-outline,
 .print-btn,
 .pager button,
+.pager-link,
 .table-tools span {
   border: 1.5px solid var(--clr-border);
   border-radius: var(--radius-pill);
@@ -516,13 +562,32 @@ button,
   gap: 16px;
 }
 
+.country-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .table-tools span {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   height: 21px;
   padding: 0 9px;
   color: #111;
   background: #fff;
+}
+
+.country-search input {
+  width: 190px;
+  height: 32px;
+  border: 1px solid #dfe3ea;
+  border-radius: 11px;
+  background: #fff;
+  padding: 0 14px;
+  color: #111827;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 table {
@@ -605,10 +670,24 @@ td {
 }
 
 .pager button,
+.pager-link,
 .print-btn {
   min-width: 75px;
   height: 22px;
   background: #fff;
+}
+
+.pager-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #111;
+  text-decoration: none;
+}
+
+.pager-link--disabled {
+  color: #9aa1ad;
+  pointer-events: none;
 }
 
 .print-btn {

@@ -43,8 +43,16 @@
     <section class="data-section">
       <div class="section-label">Data Explorer</div>
       <h2>Filter vaccination data by country or region and year. View coverage rates and herd immunity levels.</h2>
+      <div
+        class="formula-note"
+        tabindex="0"
+        title="Herd Immunity Rate = countries meeting the selected target / total countries in the region * 100."
+        data-tip="Herd Immunity Rate = countries meeting the selected target / total countries in the region * 100."
+      >
+        <span>Calculation note</span>
+      </div>
           {{ERROR_BOX}}
-      <form class="filter-panel" method="get" action="/Webpage3">
+      <form id="webpage3-filter" class="filter-panel" method="get" action="/Webpage3">
         <div class="field">
           <label>Select Antigen</label>
           <select name="antigen">
@@ -75,13 +83,15 @@
 
         <div class="field target-field">
           <label>Target</label>
-        <input
-          type="number"
-          name="target"
-          min="0"
-          max="100"
-          placeholder="Enter target %"
-        />
+          <input
+            type="number"
+            name="target"
+            min="0"
+            max="100"
+            value="{{TARGET_VALUE}}"
+            placeholder="Enter target %"
+          />
+        </div>
 
         <div class="filter-actions">
           <button type="submit" class="btn-primary">Apply Filters</button>
@@ -129,7 +139,7 @@
         </section>
       </div>
 
-      <section class="table-card country-card">
+      <section id="country-table" class="table-card country-card">
         <div class="table-head">
           <div>
             <h3>Country-level coverage table</h3>
@@ -137,7 +147,16 @@
           </div>
 
           <div class="table-tools">
-            <span>Search country</span>
+            <label class="country-search">
+              <span>Search country</span>
+              <input
+                type="search"
+                name="country_search"
+                value="{{COUNTRY_SEARCH_VALUE}}"
+                placeholder="Country name"
+                form="webpage3-filter"
+              />
+            </label>
             <span>{{COUNTRY_COUNT_LABEL}}</span>
           </div>
         </div>
@@ -160,14 +179,12 @@
           </tbody>
         </table>
 
-        <p class="table-note">~211 more rows - scroll to load-</p>
+        <p class="table-note">{{COUNTRY_TABLE_NOTE}}</p>
 
         <div class="table-footer">
-          <span>Showing 1-15 of 49</span>
+          <span>{{COUNTRY_TABLE_PAGE_LABEL}}</span>
           <div class="pager">
-            <button>Prev</button>
-            <span>1</span>
-            <button>Next</button>
+            {{COUNTRY_PAGER}}
           </div>
         </div>
       </section>
@@ -192,7 +209,6 @@
               <th>Region</th>
               <th>Country Met</th>
               <th>Total Countries</th>
-              <th>% of Region</th>
               <th>Avg Coverage</th>
               <th>Herd Immunity<br>Rate</th>
             </tr>
@@ -204,7 +220,7 @@
         </table>
 
         <div class="table-footer">
-          <span>Showing all 7 regions</span>
+          <span>{{REGION_TABLE_PAGE_LABEL}}</span>
         </div>
       </section>
 

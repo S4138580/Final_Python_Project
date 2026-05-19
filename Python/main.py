@@ -1,10 +1,10 @@
-import pyhtml
-import Webpage1
-import Webpage3
-import Webpage5
-import Webpage_2_Mission
-import Webpage_4_Economy
-import Webpage_6_Average
+import Python.pyhtml as pyhtml
+import Python.Webpage1 as Webpage1
+import Python.Webpage3 as Webpage3
+import Python.Webpage5 as Webpage5
+import Python.Webpage_2_Mission as Webpage_2_Mission
+import Python.Webpage_4_Economy as Webpage_4_Economy
+import Python.Webpage_6_Average as Webpage_6_Average
 
 
 pyhtml.need_debugging_help = True

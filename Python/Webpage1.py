@@ -1,4 +1,4 @@
-import pyhtml
+import Python.pyhtml as pyhtml
 
 DATABASE = "immunisation.db"
 TEMPLATE = "Webpage1.html"

@@ -1,5 +1,5 @@
 import sys
-import pyhtml
+import Python.pyhtml as pyhtml
 import io
 import csv
 from urllib.parse import urlencode
@@ -481,12 +481,7 @@ def render_country_pager(
 ):
     total_pages = max(1, (country_count + COUNTRY_ROWS_PER_PAGE - 1) // COUNTRY_ROWS_PER_PAGE)
 
-    if total_pages <= 1:
-        return '<span>1</span>'
-
-    html = ""
-
-    def make_page_link(page_number, label, active=False):
+    def make_page_link(page_number, label, disabled=False):
         query = urlencode({
             "antigen": antigen,
             "year": year,
@@ -497,38 +492,17 @@ def render_country_pager(
             "country_page": page_number
         })
 
-        if active:
-            return f'<span class="pager-active">{label}</span>'
+        disabled_class = " disabled" if disabled else ""
+        return f'<a class="{disabled_class}" href="/Webpage3.html?{query}#country-table">{label}</a>'
 
-        return f'<a href="/Webpage3?{query}">{label}</a>'
+    prev_page = max(1, current_page - 1)
+    next_page = min(total_pages, current_page + 1)
 
-    if current_page > 1:
-        html += make_page_link(current_page - 1, "Previous")
-
-    start_page = max(1, current_page - 2)
-    end_page = min(total_pages, current_page + 2)
-
-    if start_page > 1:
-        html += make_page_link(1, "1")
-        if start_page > 2:
-            html += '<span>...</span>'
-
-    for page_number in range(start_page, end_page + 1):
-        html += make_page_link(
-            page_number,
-            str(page_number),
-            active=(page_number == current_page)
-        )
-
-    if end_page < total_pages:
-        if end_page < total_pages - 1:
-            html += '<span>...</span>'
-        html += make_page_link(total_pages, str(total_pages))
-
-    if current_page < total_pages:
-        html += make_page_link(current_page + 1, "Next")
-
-    return html
+    return (
+        make_page_link(prev_page, "Prev", disabled=(current_page <= 1))
+        + f'<span class="page-number">{current_page}</span>'
+        + make_page_link(next_page, "Next", disabled=(current_page >= total_pages))
+    )
 
 def replace_placeholders(page_html, replacements):
     for placeholder in replacements:

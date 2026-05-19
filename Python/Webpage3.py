@@ -5,8 +5,8 @@ import csv
 from urllib.parse import urlencode
 from html import escape
 
-DATABASE = "immunisation.db"
-TEMPLATE = "Webpage3.html"
+DATABASE = "Database/immunisation.db"
+TEMPLATE = "Html/Webpage3.html"
 TARGET = 90
 COUNTRY_ROWS_PER_PAGE = 15
 

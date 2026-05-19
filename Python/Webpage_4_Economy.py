@@ -2,7 +2,7 @@ import Python.pyhtml as pyhtml
 
 
 DATABASE = "Database/immunisation.db"
-TEMPLATE = "Webpage_4_Economy.html"
+TEMPLATE = "Html/Webpage_4_Economy.html"
 ROWS_PER_PAGE = 5
 ORDER_OPTIONS = [
     ("country_az", "A-z"),

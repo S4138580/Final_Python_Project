@@ -6,8 +6,8 @@ from urllib.parse import urlencode
 import Python.pyhtml as pyhtml
 
 
-DATABASE = "immunisation.db"
-TEMPLATE = "Webpage5.html"
+DATABASE = "Database/immunisation.db"
+TEMPLATE = "Html/Webpage5.html"
 
 
 def get_first_value(form_data, key, default_value):

@@ -150,7 +150,7 @@ img {
 ═══════════════════════════════════════════════════════════════ */
 .hero {
   position: relative;
-  min-height: 555px;
+  min-height: 610px;
   margin-top: 46px;
   display: flex;
   align-items: flex-start;

@@ -2,7 +2,7 @@ import Python.pyhtml as pyhtml
 
 
 DATABASE = "Database/persona_team.db"
-TEMPLATE = "Webpage_2_Mission.html"
+TEMPLATE = "Html/Webpage_2_Mission.html"
 
 
 def persona_image(label):

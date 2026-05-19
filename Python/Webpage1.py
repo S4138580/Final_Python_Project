@@ -1,7 +1,7 @@
 import Python.pyhtml as pyhtml
 
-DATABASE = "immunisation.db"
-TEMPLATE = "Webpage1.html"
+DATABASE = "Database/immunisation.db"
+TEMPLATE = "Html/Webpage1.html"
 
 
 def format_number(value):

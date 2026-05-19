@@ -2,7 +2,7 @@ import Python.pyhtml as pyhtml
 
 
 DATABASE = "Database/immunisation.db"
-TEMPLATE = "Webpage_6_Average.html"
+TEMPLATE = "Html/Webpage_6_Average.html"
 ROWS_PER_PAGE = 5
 ORDER_OPTIONS = [
     ("country_az", "A-z"),

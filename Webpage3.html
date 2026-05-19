@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vaccination Rate Analysis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="Webpage3.css" />
+</head>
+<body class="{{PRINT_CLASS}}">
+
+  <div id="header">
+    <a class="brand" href="/Webpage1.html">HealthAwAre</a>
+    <ul id="nav">
+      <li><a href="/Webpage1.html">Home</a></li>
+      <li><a href="/Webpage_2_Mission.html">Mission</a></li>
+      <li><a href="/Webpage3.html" class="active">Vaccination Rates</a></li>
+      <li><a href="/Webpage_4_Economy.html">Infection by Economy</a></li>
+      <li><a href="/Webpage5.html">Rate Improvement</a></li>
+      <li><a href="/Webpage_6_Average.html">Above Average</a></li>
+    </ul>
+  </div>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <h1>Vaccination Rate<br><span>Analysis</span></h1>
+        <p>WHO immunisation data, made simple for everyone</p>
+      </div>
+
+      <span class="shape hero-dot"></span>
+      <span class="shape hero-pink"></span>
+      <span class="shape hero-blue"></span>
+      <span class="shape hero-green"></span>
+    </section>
+
+    <section class="data-section">
+      <div class="section-label">Data Explorer</div>
+      <h2>Filter vaccination data by country or region and year. View coverage rates and herd immunity levels.</h2>
+      <div
+        class="formula-note"
+        tabindex="0"
+        title="Herd Immunity Rate = countries meeting the selected target / total countries in the region * 100."
+        data-tip="Herd Immunity Rate = countries meeting the selected target / total countries in the region * 100."
+      >
+        <span>Calculation note</span>
+      </div>
+          {{ERROR_BOX}}
+      <form id="webpage3-filter" class="filter-panel" method="get" action="/Webpage3.html">
+        <div class="field">
+          <label>Select Antigen</label>
+          <select name="antigen">
+            {{ANTIGEN_OPTIONS}}
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Select Year</label>
+          <select name="year">
+            {{YEAR_OPTIONS}}
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Select Region</label>
+          <select name="region">
+           {{REGION_OPTIONS}} 
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Select Country</label>
+          <select name="country">
+              {{COUNTRY_OPTIONS}}
+          </select>
+        </div>
+
+        <div class="field target-field">
+          <label>Target</label>
+          <input
+            type="number"
+            name="target"
+            value="{{TARGET_VALUE}}"
+            placeholder="Enter target %"
+          />
+        </div>
+
+        <div class="filter-actions">
+          <button type="submit" class="btn-primary">Apply Filters</button>
+          <a href="/Webpage3.html" class="btn-outline reset-link">Reset</a>
+        </div>
+      </form>
+
+      <div class="dashboard-grid">
+        <section class="summary-card">
+          <h3>Summary Snapshot</h3>
+
+          <div class="summary-grid">
+            <div class="metric">
+              <strong>{{COUNTRIES_MET}}</strong>
+              <span>Countries meeting target</span>
+            </div>
+
+            <div class="metric">
+              <strong>{{COUNTRIES_BELOW}}</strong>
+              <span>Countries below target</span>
+            </div>
+
+            <div class="metric">
+              <strong>{{GLOBAL_AVG_COVERAGE}}</strong>
+              <span>Global avg coverage</span>
+            </div>
+
+            <div class="metric">
+              <strong>{{SELECTED_YEAR}}</strong>
+              <span>Selected year</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="region-card">
+
+          <div class="section-head">
+            <div>
+              <h3>Coverage by Region</h3>
+            </div>
+          </div>
+
+          {{REGION_BARS}}
+
+        </section>
+      </div>
+
+      <section id="country-table" class="table-card country-card">
+        <div class="table-head">
+          <div>
+            <h3>Country-level coverage table</h3>
+            <p>{{COUNTRY_TABLE_SUBTITLE}}</p>
+          </div>
+
+          <div class="table-tools">
+            <label class="country-search">
+              <span>Search country</span>
+              <input
+                type="search"
+                name="country_search"
+                value="{{COUNTRY_SEARCH_VALUE}}"
+                placeholder="Country name"
+                form="webpage3-filter"
+              />
+            </label>
+            <span>{{COUNTRY_COUNT_LABEL}}</span>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Country</th>
+              <th>Region</th>
+              <th>Income Group</th>
+              <th>Antigen</th>
+              <th>Year</th>
+              <th>Coverage</th>
+              <th>Target?</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {{COUNTRY_TABLE_ROWS}}
+          </tbody>
+        </table>
+
+        <p class="table-note">{{COUNTRY_TABLE_NOTE}}</p>
+
+        <div class="table-footer">
+          <span>{{COUNTRY_TABLE_PAGE_LABEL}}</span>
+          <div class="pager">
+            {{COUNTRY_PAGER}}
+          </div>
+        </div>
+      </section>
+
+      <section class="table-card regional-card">
+        <div class="table-head">
+          <div>
+            <h3>Regional-level coverage table</h3>
+            <p>{{REGIONAL_TABLE_SUBTITLE}}</p>
+          </div>
+
+          <div class="table-tools">
+            <span>{{REGION_COUNT_LABEL}}</span>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Antigen</th>
+              <th>Year</th>
+              <th>Region</th>
+              <th>Country Met</th>
+              <th>Total Countries</th>
+              <th>Avg Coverage</th>
+              <th>Herd Immunity<br>Rate</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {{REGION_TABLE_ROWS}}
+          </tbody>
+        </table>
+
+        <div class="table-footer">
+          <span>{{REGION_TABLE_PAGE_LABEL}}</span>
+        </div>
+      </section>
+
+      <div class="export-actions">
+        <a class="print-btn" href="/Webpage3.html?{{ACTION_QUERY}}&export=country_csv">Country CSV</a>
+        <a class="print-btn" href="/Webpage3.html?{{ACTION_QUERY}}&export=region_csv">Region CSV</a>
+        <a class="print-btn" href="/Webpage3.html?{{ACTION_QUERY}}&print=1">Print view</a>
+      </div>
+
+      <span class="shape page-blue"></span>
+      <span class="shape page-green"></span>
+      <span class="shape page-purple"></span>
+      <span class="shape page-yellow"></span>
+      <span class="shape page-pink"></span>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>© 2026 VaxInsight</span>
+    <strong>Data sourced from World Health Organization</strong>
+    <span>Database updated: 10 March 2026</span>
+  </footer>
+</body>
+</html>

@@ -1,6 +1,4 @@
 import sqlite3
-import os
-
 import http.server
 import socketserver
 from urllib.parse import parse_qs, urlparse
@@ -18,24 +16,34 @@ class MyRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         parsed_url = urlparse(self.path)
-        debugging_helper(f"A web browser wants to GET the following: {parsed_url.path}")
+        path = parsed_url.path
+        debugging_helper(f"A web browser wants to GET: {path}")
 
-        if parsed_url.path in MyRequestHandler.pages:
-            query = parsed_url.query
-            form_data = parse_qs(query)
-            debugging_helper(f"\tReceived following data with GET request: {form_data}")
+        if path in MyRequestHandler.pages:
+            form_data = parse_qs(parsed_url.query)
+            debugging_helper(f"Received GET data: {form_data}")
 
-            response = MyRequestHandler.pages[parsed_url.path].get_page_html(form_data)
+            page_module = MyRequestHandler.pages[path]
+            response = page_module.get_page_html(form_data)
 
             self.send_response(200)
+
             if isinstance(response, dict):
-                content = response["content"]
-                content_type = response.get("content_type", "text/plain; charset=utf-8")
+                content = response.get("content", "")
+                content_type = response.get(
+                    "content_type",
+                    "text/plain; charset=utf-8",
+                )
                 filename = response.get("filename")
 
                 self.send_header("Content-type", content_type)
-                if filename != None:
-                    self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
+
+                if filename is not None:
+                    self.send_header(
+                        "Content-Disposition",
+                        f'attachment; filename="{filename}"',
+                    )
+
                 self.end_headers()
                 self.wfile.write(content.encode("utf-8"))
             else:
@@ -54,24 +62,29 @@ def host_site():
     port = 8000
 
     with ReusableThreadingTCPServer(("", port), MyRequestHandler) as httpd:
-        print("Using your favourite browser, go to:\n")
-        print(f"http://localhost:{port}/Webpage_2_Mission.html\n")
+        print("Server running.")
+        print("Open this link in your browser:")
+        print(f"http://localhost:{port}/")
         httpd.serve_forever()
 
 
 def get_results_from_query(database, query):
     debugging_helper("\n------------------------")
-    debugging_helper('Opening database "' + database + '"... ')
+    debugging_helper(f'Opening database "{database}"...')
+
     connection = sqlite3.connect(database)
     cursor = connection.cursor()
-    debugging_helper("done\n")
-    debugging_helper('Executing query "' + query + '"... ')
+
+    debugging_helper("Executing query:")
+    debugging_helper(query)
+
     cursor.execute(query)
-    debugging_helper("done\n")
-    debugging_helper("Fetching results...\n")
     results = cursor.fetchall()
+
+    debugging_helper("Query results:")
     debugging_helper(results)
-    debugging_helper("\n------------------------")
+    debugging_helper("------------------------\n")
+
     connection.close()
     return results
 

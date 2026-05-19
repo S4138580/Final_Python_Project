@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Top Vaccination Improvers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="Webpage5.css" />
+</head>
+<body class="{{PRINT_CLASS}}">
+  <div id="header">
+    <a class="brand" href="/Webpage1.html">HealthAwAre</a>
+    <ul id="nav">
+      <li><a href="/Webpage1.html">Home</a></li>
+      <li><a href="/Webpage_2_Mission.html">Mission</a></li>
+      <li><a href="/Webpage3.html">Vaccination Rates</a></li>
+      <li><a href="/Webpage_4_Economy.html">Infection by Economy</a></li>
+      <li><a href="/Webpage5.html" class="active">Rate Improvement</a></li>
+      <li><a href="/Webpage_6_Average.html">Above Average</a></li>
+    </ul>
+  </div>
+
+  <main>
+    <section class="hero">
+      <div class="hero__copy">
+        <h1>Top Vaccination<br><span>Improvers</span></h1>
+        <p>WHO immunisation data, made simple for everyone</p>
+      </div>
+
+      <span class="shape shape--pink"></span>
+      <span class="shape shape--blue"></span>
+      <span class="shape shape--yellow"></span>
+      <span class="shape shape--green"></span>
+    </section>
+
+    <section class="data-section">
+      <h2>Identify the largest changes in vaccination rates.</h2>
+    <div
+      class="formula-note"
+      tabindex="0"
+      title="Rate Increase = end vaccination rate - start vaccination rate. Vaccination rate = doses / country population * 100. Only countries with valid dose and population data in both selected years are included."
+      data-tip="Rate Increase = end vaccination rate - start vaccination rate. Vaccination rate = doses / country population * 100. Only countries with valid dose and population data in both selected years are included.">
+        <span>Calculation note</span>
+    </div>
+
+      {{ERROR_BOX}}
+
+      <form class="filter-panel" method="get" action="/Webpage5.html">
+        <div class="field">
+          <label>Select Antigen</label>
+          <select name="antigen">
+            {{ANTIGEN_OPTIONS}}
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Select Start Year</label>
+          <select name="start_year">
+            {{START_YEAR_OPTIONS}}
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Select End Year</label>
+          <select name="end_year">
+            {{END_YEAR_OPTIONS}}
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Top Countries</label>
+          <select name="limit">
+            {{TOP_COUNTRY_OPTIONS}}
+          </select>
+        </div>
+
+        <div class="field field--wide">
+          <label>Show</label>
+          <div class="segmented">
+            <label>
+              <input type="radio" name="mode" value="gains" {{GAINS_CHECKED}} />
+              <span>Biggest gains</span>
+            </label>
+            <label>
+              <input type="radio" name="mode" value="declines" {{DECLINES_CHECKED}} />
+              <span>Biggest declines</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="filter-actions">
+          <button type="submit" class="btn-primary">Apply Filters</button>
+          <a href="/Webpage5.html" class="btn-outline">Reset</a>
+        </div>
+      </form>
+
+      <section class="summary-strip">
+        <article class="summary-card">
+          <strong>{{BEST_IMPROVEMENT}}</strong>
+          <span>Biggest single improvement</span>
+          <small>{{BEST_COUNTRY}}</small>
+        </article>
+
+        <article class="summary-card">
+          <strong>{{AVG_IMPROVEMENT}}</strong>
+          <span>{{AVG_LABEL}}</span>
+          <small>{{RESULT_SUBTITLE}}</small>
+        </article>
+
+        <article class="summary-card">
+          <strong>{{MOST_REGION}}</strong>
+          <span>Most represented region</span>
+          <small>{{MOST_REGION_SUB}}</small>
+        </article>
+
+        <article class="summary-card">
+          <strong>{{MOST_INCOME}}</strong>
+          <span>Most represented income group</span>
+          <small>{{MOST_INCOME_SUB}}</small>
+        </article>
+      </section>
+
+      <section class="region-card">
+        <h3>Coverage by Region</h3>
+        <p>{{RESULT_SUBTITLE}}</p>
+
+        <div class="region-list">
+          {{REGION_BARS}}
+        </div>
+      </section>
+
+      <section class="chart-card">
+        <h3>{{RESULT_TITLE}}</h3>
+        <p>{{RESULT_SUBTITLE}}</p>
+
+        <div class="bar-list">
+          {{IMPROVER_BARS}}
+        </div>
+      </section>
+
+      <section class="table-card">
+        <h3>Detailed Results</h3>
+        <p>{{RESULT_SUBTITLE}} - {{SORT_LABEL}}</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Country</th>
+              <th>Region</th>
+              <th>Income Group</th>
+              <th>Start Rate</th>
+              <th>End Rate</th>
+              <th>Rate Increase</th>
+              <th>Trend</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{DETAIL_TABLE_ROWS}}
+          </tbody>
+        </table>
+      </section>
+
+      <div class="export-actions">
+        <a class="print-btn" href="/Webpage5.html?{{ACTION_QUERY}}&export=csv">CSV</a>
+        <a class="print-btn" href="/Webpage5.html?{{ACTION_QUERY}}&print=1">Print view</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>© 2026 VaxInsight</span>
+    <strong>Data sourced from World Health Organization</strong>
+    <span>Database updated: 10 March 2026</span>
+  </footer>
+</body>
+</html>

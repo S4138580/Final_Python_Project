@@ -1,10 +1,9 @@
 import sys
-import csv
-import io
-from html import escape
-from urllib.parse import urlencode
-
 import pyhtml
+import io
+import csv
+from urllib.parse import urlencode
+from html import escape
 
 DATABASE = "immunisation.db"
 TEMPLATE = "Webpage3.html"
@@ -276,7 +275,15 @@ def get_country_count(antigen, year, region, country, target, country_search):
     return pyhtml.get_results_from_query(DATABASE, query)[0][0] or 0
 
 
-def render_country_table_rows(antigen, year, region, country, target, country_search, country_page):
+def render_country_table_rows(
+    antigen,
+    year,
+    region,
+    country,
+    target,
+    country_search,
+    country_page
+):
     condition = build_filter_condition(antigen, year, region, country)
     condition = add_country_search_condition(condition, country_search)
     offset = (country_page - 1) * COUNTRY_ROWS_PER_PAGE
@@ -301,6 +308,7 @@ def render_country_table_rows(antigen, year, region, country, target, country_se
     """
 
     rows = pyhtml.get_results_from_query(DATABASE, query)
+
     if len(rows) == 0:
         return """
         <tr>
@@ -359,6 +367,7 @@ def render_region_table_rows(antigen, year, region, country, target):
     """
 
     rows = pyhtml.get_results_from_query(DATABASE, query)
+
     if len(rows) == 0:
         return """
         <tr>
@@ -389,122 +398,66 @@ def render_region_table_rows(antigen, year, region, country, target):
 
     return html
 
+def render_country_pager(
+    antigen,
+    year,
+    region,
+    country,
+    target,
+    country_search,
+    current_page,
+    country_count
+):
+    total_pages = max(1, (country_count + COUNTRY_ROWS_PER_PAGE - 1) // COUNTRY_ROWS_PER_PAGE)
 
-def build_country_table_query(antigen, year, region, country, target, country_search, country_page):
-    query = {
-        "antigen": antigen,
-        "year": year,
-        "region": region,
-        "country": country,
-        "target": target,
-        "country_page": country_page,
-    }
-    if country_search != "":
-        query["country_search"] = country_search
-    return urlencode(query)
+    if total_pages <= 1:
+        return '<span>1</span>'
 
+    html = ""
 
-def render_country_pager(antigen, year, region, country, target, country_search, country_page, total_rows):
-    if total_rows == 0:
-        return "<span>0</span>"
+    def make_page_link(page_number, label, active=False):
+        query = urlencode({
+            "antigen": antigen,
+            "year": year,
+            "region": region,
+            "country": country,
+            "target": target,
+            "country_search": country_search,
+            "country_page": page_number
+        })
 
-    total_pages = (total_rows + COUNTRY_ROWS_PER_PAGE - 1) // COUNTRY_ROWS_PER_PAGE
-    prev_page = max(1, country_page - 1)
-    next_page = min(total_pages, country_page + 1)
-    prev_class = "pager-link"
-    next_class = "pager-link"
+        if active:
+            return f'<span class="pager-active">{label}</span>'
 
-    if country_page == 1:
-        prev_class += " pager-link--disabled"
-    if country_page == total_pages:
-        next_class += " pager-link--disabled"
+        return f'<a href="/Webpage3?{query}">{label}</a>'
 
-    prev_query = build_country_table_query(antigen, year, region, country, target, country_search, prev_page)
-    next_query = build_country_table_query(antigen, year, region, country, target, country_search, next_page)
+    if current_page > 1:
+        html += make_page_link(current_page - 1, "Previous")
 
-    return f"""
-    <a class="{prev_class}" href="/Webpage3.html?{prev_query}#country-table">Prev</a>
-    <span>{country_page}</span>
-    <a class="{next_class}" href="/Webpage3.html?{next_query}#country-table">Next</a>
-    """
+    start_page = max(1, current_page - 2)
+    end_page = min(total_pages, current_page + 2)
 
+    if start_page > 1:
+        html += make_page_link(1, "1")
+        if start_page > 2:
+            html += '<span>...</span>'
 
-def build_action_query(antigen, year, region, country, target, country_search):
-    query = {
-        "antigen": antigen,
-        "year": year,
-        "region": region,
-        "country": country,
-        "target": target,
-    }
+    for page_number in range(start_page, end_page + 1):
+        html += make_page_link(
+            page_number,
+            str(page_number),
+            active=(page_number == current_page)
+        )
 
-    if country_search != "":
-        query["country_search"] = country_search
+    if end_page < total_pages:
+        if end_page < total_pages - 1:
+            html += '<span>...</span>'
+        html += make_page_link(total_pages, str(total_pages))
 
-    return urlencode(query)
+    if current_page < total_pages:
+        html += make_page_link(current_page + 1, "Next")
 
-
-def get_csv_country_rows(antigen, year, region, country, target, country_search):
-    condition = build_filter_condition(antigen, year, region, country)
-    condition = add_country_search_condition(condition, country_search)
-
-    query = f"""
-    SELECT
-      c.name,
-      r.RegionID,
-      e.phase,
-      v.antigen,
-      v.year,
-      v.coverage,
-      'MET'
-    FROM Vaccination v
-    JOIN Country c ON v.country = c.CountryID
-    JOIN Region r ON c.region = r.RegionID
-    LEFT JOIN Economy e ON c.economy = e.economyID
-    WHERE {condition}
-      AND v.coverage >= {target}
-    ORDER BY v.coverage DESC, c.name ASC;
-    """
-
-    return pyhtml.get_results_from_query(DATABASE, query)
-
-
-def get_csv_region_rows(antigen, year, region, country, target):
-    condition = build_filter_condition(antigen, year, region, country)
-
-    query = f"""
-    SELECT
-      v.antigen,
-      v.year,
-      r.RegionID,
-      COUNT(DISTINCT CASE WHEN v.coverage >= {target} THEN v.country END) AS countries_met,
-      COUNT(DISTINCT v.country) AS total_countries,
-      ROUND(AVG(v.coverage), 1) AS avg_coverage
-    FROM Vaccination v
-    JOIN Country c ON v.country = c.CountryID
-    JOIN Region r ON c.region = r.RegionID
-    WHERE {condition}
-    GROUP BY v.antigen, v.year, r.RegionID
-    ORDER BY countries_met DESC, r.RegionID ASC;
-    """
-
-    return pyhtml.get_results_from_query(DATABASE, query)
-
-
-def make_csv_response(filename, headings, rows):
-    output = io.StringIO()
-    writer = csv.writer(output)
-    writer.writerow(headings)
-
-    for row in rows:
-        writer.writerow(row)
-
-    return {
-        "content": output.getvalue(),
-        "content_type": "text/csv; charset=utf-8",
-        "filename": filename,
-    }
-
+    return html
 
 def replace_placeholders(page_html, replacements):
     for placeholder in replacements:
@@ -643,6 +596,7 @@ def get_page_html(form_data):
     year = to_int(year_value, 0)
     if country != "ALL":
         region = get_region_for_country(country)
+
     if country_page < 1:
         country_page = 1
 
@@ -652,14 +606,13 @@ def get_page_html(form_data):
             ["Country", "Region", "Income Group", "Antigen", "Year", "Coverage", "Target"],
             get_csv_country_rows(antigen, year, region, country, target, country_search)
         )
-
+    
     if export == "region_csv":
         return make_csv_response(
             "vaccination_region_summary.csv",
             ["Antigen", "Year", "Region", "Countries Met", "Total Countries", "Avg Coverage"],
             get_csv_region_rows(antigen, year, region, country, target)
-        )
-
+        )    
     countries_met, countries_below, avg_coverage = get_summary(antigen, year, region, country, target)
     country_count = get_country_count(antigen, year, region, country, target, country_search)
     region_count = get_region_count(antigen, year, region, country)
@@ -712,10 +665,18 @@ def get_page_html(form_data):
             country_page,
             country_count
         ),
-        "{{ACTION_QUERY}}": build_action_query(antigen, year, region, country, target, country_search),
+        "{{ACTION_QUERY}}": build_action_query(
+            antigen,
+            year,
+            region,
+            country,
+            target,
+            country_search
+        ),
+
         "{{REGIONAL_TABLE_SUBTITLE}}": f"{antigen} antigen - {year}",
         "{{REGION_COUNT_LABEL}}": f"{region_count} Regions",
-        "{{REGION_TABLE_PAGE_LABEL}}": f"Showing all {region_count} regions",
+        "{{REGION_TABLE_PAGE_LABEL}}": f"Showing {region_count} regions",
     }
 
     return replace_placeholders(page_html, replacements)

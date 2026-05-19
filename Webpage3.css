@@ -696,6 +696,20 @@ td {
   margin-top: 8px;
   width: 98px;
   height: 33px;
+  color: #111;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.export-actions {
+  position: relative;
+  z-index: 2;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .site-footer {
@@ -839,6 +853,44 @@ td {
   table {
     min-width: 650px;
   }
+}
+
+@media print {
+  .nav,
+  .hero,
+  .filter-panel,
+  .formula-note,
+  .export-actions,
+  .shape,
+  .site-footer {
+    display: none;
+  }
+
+  .data-section {
+    padding: 0;
+    background: #fff;
+  }
+
+  .table-card,
+  .summary-card,
+  .region-card {
+    break-inside: avoid;
+  }
+}
+
+.print-mode .nav,
+.print-mode .hero,
+.print-mode .filter-panel,
+.print-mode .formula-note,
+.print-mode .export-actions,
+.print-mode .shape,
+.print-mode .site-footer {
+  display: none;
+}
+
+.print-mode .data-section {
+  padding: 24px;
+  background: #fff;
 }
 
 @media (max-width: 620px) {

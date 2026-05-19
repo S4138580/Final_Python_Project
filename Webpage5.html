@@ -6,17 +6,17 @@
   <title>Top Vaccination Improvers</title>
   <link rel="stylesheet" href="Webpage5.css" />
 </head>
-<body>
+<body class="{{PRINT_CLASS}}">
   <header class="nav">
     <div class="nav__logo">VaxInsight</div>
 
     <nav class="nav__links">
       <a href="/Webpage1">Home</a>
-      <a href="/Webpage2">Mission</a>
+      <a href="/mission.html">Mission</a>
       <a href="/Webpage3">Vaccination Rates</a>
-      <a href="/Webpage4">Infection by Economy</a>
+      <a href="/Webpage_4_Economy.html">Infection by Economy</a>
       <a class="active" href="/Webpage5">Top Improvers</a>
-      <a href="/Webpage6">Above Average</a>
+      <a href="/Webpage_6_Average.html">Above Average</a>
     </nav>
 
     <span class="nav__badge">Data sourced from WHO</span>
@@ -37,6 +37,8 @@
 
     <section class="data-section">
       <h2>Filter vaccination data by country or region and year. View coverage rates and herd immunity levels.</h2>
+
+      {{ERROR_BOX}}
 
       <form class="filter-panel" method="get" action="/Webpage5">
         <div class="field">
@@ -154,7 +156,10 @@
         </table>
       </section>
 
-      <button class="print-btn" type="button">Print</button>
+      <div class="export-actions">
+        <a class="print-btn" href="/Webpage5.html?{{ACTION_QUERY}}&export=csv">CSV</a>
+        <a class="print-btn" href="/Webpage5.html?{{ACTION_QUERY}}&print=1">Print view</a>
+      </div>
     </section>
   </main>
 

@@ -1,4 +1,6 @@
 import sys
+import csv
+import io
 from html import escape
 from urllib.parse import urlencode
 
@@ -427,6 +429,83 @@ def render_country_pager(antigen, year, region, country, target, country_search,
     """
 
 
+def build_action_query(antigen, year, region, country, target, country_search):
+    query = {
+        "antigen": antigen,
+        "year": year,
+        "region": region,
+        "country": country,
+        "target": target,
+    }
+
+    if country_search != "":
+        query["country_search"] = country_search
+
+    return urlencode(query)
+
+
+def get_csv_country_rows(antigen, year, region, country, target, country_search):
+    condition = build_filter_condition(antigen, year, region, country)
+    condition = add_country_search_condition(condition, country_search)
+
+    query = f"""
+    SELECT
+      c.name,
+      r.RegionID,
+      e.phase,
+      v.antigen,
+      v.year,
+      v.coverage,
+      'MET'
+    FROM Vaccination v
+    JOIN Country c ON v.country = c.CountryID
+    JOIN Region r ON c.region = r.RegionID
+    LEFT JOIN Economy e ON c.economy = e.economyID
+    WHERE {condition}
+      AND v.coverage >= {target}
+    ORDER BY v.coverage DESC, c.name ASC;
+    """
+
+    return pyhtml.get_results_from_query(DATABASE, query)
+
+
+def get_csv_region_rows(antigen, year, region, country, target):
+    condition = build_filter_condition(antigen, year, region, country)
+
+    query = f"""
+    SELECT
+      v.antigen,
+      v.year,
+      r.RegionID,
+      COUNT(DISTINCT CASE WHEN v.coverage >= {target} THEN v.country END) AS countries_met,
+      COUNT(DISTINCT v.country) AS total_countries,
+      ROUND(AVG(v.coverage), 1) AS avg_coverage
+    FROM Vaccination v
+    JOIN Country c ON v.country = c.CountryID
+    JOIN Region r ON c.region = r.RegionID
+    WHERE {condition}
+    GROUP BY v.antigen, v.year, r.RegionID
+    ORDER BY countries_met DESC, r.RegionID ASC;
+    """
+
+    return pyhtml.get_results_from_query(DATABASE, query)
+
+
+def make_csv_response(filename, headings, rows):
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(headings)
+
+    for row in rows:
+        writer.writerow(row)
+
+    return {
+        "content": output.getvalue(),
+        "content_type": "text/csv; charset=utf-8",
+        "filename": filename,
+    }
+
+
 def replace_placeholders(page_html, replacements):
     for placeholder in replacements:
         page_html = page_html.replace(placeholder, str(replacements[placeholder]))
@@ -436,6 +515,7 @@ def replace_placeholders(page_html, replacements):
 def render_empty_page(page_html):
     replacements = {
         "{{ERROR_BOX}}": "",
+        "{{PRINT_CLASS}}": "",
         "{{ANTIGEN_OPTIONS}}": make_options(get_antigen_options(), "", "Select vaccine"),
         "{{YEAR_OPTIONS}}": make_options(get_year_options(), "", "Select year"),
         "{{REGION_OPTIONS}}": make_options(get_region_options(), "", "Select region"),
@@ -454,6 +534,7 @@ def render_empty_page(page_html):
         "{{COUNTRY_TABLE_NOTE}}": "",
         "{{COUNTRY_TABLE_PAGE_LABEL}}": "Showing 0 of 0",
         "{{COUNTRY_PAGER}}": "<span>0</span>",
+        "{{ACTION_QUERY}}": "",
         "{{REGIONAL_TABLE_SUBTITLE}}": "No filters applied",
         "{{REGION_COUNT_LABEL}}": "0 Regions",
         "{{REGION_TABLE_PAGE_LABEL}}": "Showing 0 regions",
@@ -465,6 +546,7 @@ def render_empty_page(page_html):
 def render_incomplete_page(page_html, antigen, year, region, country, target_value, country_search, errors):
     replacements = {
         "{{ERROR_BOX}}": render_error_box(errors),
+        "{{PRINT_CLASS}}": "",
         "{{ANTIGEN_OPTIONS}}": make_options(get_antigen_options(), antigen, "Select vaccine"),
         "{{YEAR_OPTIONS}}": make_options(get_year_options(), year, "Select year"),
         "{{REGION_OPTIONS}}": make_options(get_region_options(), region, "Select region"),
@@ -483,6 +565,7 @@ def render_incomplete_page(page_html, antigen, year, region, country, target_val
         "{{COUNTRY_TABLE_NOTE}}": "",
         "{{COUNTRY_TABLE_PAGE_LABEL}}": "Showing 0 of 0",
         "{{COUNTRY_PAGER}}": "<span>0</span>",
+        "{{ACTION_QUERY}}": "",
         "{{REGIONAL_TABLE_SUBTITLE}}": "No filters applied",
         "{{REGION_COUNT_LABEL}}": "0 Regions",
         "{{REGION_TABLE_PAGE_LABEL}}": "Showing 0 regions",
@@ -505,6 +588,8 @@ def get_page_html(form_data):
     target_value = get_raw_value(form_data, "target")
     country_search = get_raw_value(form_data, "country_search")
     country_page = to_int(get_raw_value(form_data, "country_page"), 1)
+    export = get_raw_value(form_data, "export")
+    print_class = "print-mode" if get_raw_value(form_data, "print") == "1" else ""
 
     errors = []
     antigen_options = get_antigen_options()
@@ -561,6 +646,20 @@ def get_page_html(form_data):
     if country_page < 1:
         country_page = 1
 
+    if export == "country_csv":
+        return make_csv_response(
+            "vaccination_country_coverage.csv",
+            ["Country", "Region", "Income Group", "Antigen", "Year", "Coverage", "Target"],
+            get_csv_country_rows(antigen, year, region, country, target, country_search)
+        )
+
+    if export == "region_csv":
+        return make_csv_response(
+            "vaccination_region_summary.csv",
+            ["Antigen", "Year", "Region", "Countries Met", "Total Countries", "Avg Coverage"],
+            get_csv_region_rows(antigen, year, region, country, target)
+        )
+
     countries_met, countries_below, avg_coverage = get_summary(antigen, year, region, country, target)
     country_count = get_country_count(antigen, year, region, country, target, country_search)
     region_count = get_region_count(antigen, year, region, country)
@@ -577,6 +676,7 @@ def get_page_html(form_data):
 
     replacements = {
         "{{ERROR_BOX}}": "",
+        "{{PRINT_CLASS}}": print_class,
         "{{ANTIGEN_OPTIONS}}": make_options(antigen_options, antigen, "Select vaccine"),
         "{{YEAR_OPTIONS}}": make_options(year_options, year, "Select year"),
         "{{REGION_OPTIONS}}": make_options(get_region_options(), region, "Select region"),
@@ -612,6 +712,7 @@ def get_page_html(form_data):
             country_page,
             country_count
         ),
+        "{{ACTION_QUERY}}": build_action_query(antigen, year, region, country, target, country_search),
         "{{REGIONAL_TABLE_SUBTITLE}}": f"{antigen} antigen - {year}",
         "{{REGION_COUNT_LABEL}}": f"{region_count} Regions",
         "{{REGION_TABLE_PAGE_LABEL}}": f"Showing all {region_count} regions",

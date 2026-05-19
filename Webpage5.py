@@ -1,4 +1,7 @@
 import sys
+import csv
+import io
+from urllib.parse import urlencode
 
 import pyhtml
 
@@ -12,6 +15,13 @@ def get_first_value(form_data, key, default_value):
     if values == None or len(values) == 0 or values[0] == "":
         return default_value
     return values[0]
+
+
+def get_required_value(form_data, key):
+    values = form_data.get(key)
+    if values == None or len(values) == 0:
+        return ""
+    return values[0].strip()
 
 
 def to_int(value, default_value):
@@ -40,8 +50,8 @@ def format_signed_rate(value):
     return f"{sign}{format_rate(abs(value))}%"
 
 
-def make_options(rows, selected_value):
-    html = ""
+def make_options(rows, selected_value, placeholder):
+    html = f'<option value="">{placeholder}</option>'
     for row in rows:
         value = str(row[0])
         label = str(row[1])
@@ -50,6 +60,43 @@ def make_options(rows, selected_value):
             selected = ' selected="selected"'
         html += f'<option value="{value}"{selected}>{label}</option>'
     return html
+
+
+def render_error_box(errors):
+    if len(errors) == 0:
+        return ""
+
+    html = ""
+
+    for error in errors:
+        html += f"<div>{error}</div>"
+
+    return f'<div class="error-box">{html}</div>'
+
+
+def make_csv_response(filename, headings, rows):
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(headings)
+
+    for row in rows:
+        writer.writerow(row)
+
+    return {
+        "content": output.getvalue(),
+        "content_type": "text/csv; charset=utf-8",
+        "filename": filename,
+    }
+
+
+def build_action_query(antigen, start_year, end_year, limit, mode):
+    return urlencode({
+        "antigen": antigen,
+        "start_year": start_year,
+        "end_year": end_year,
+        "limit": limit,
+        "mode": mode,
+    })
 
 
 def get_antigen_options():
@@ -172,6 +219,8 @@ def build_improver_query(antigen, start_year, end_year, limit, mode):
       AND end_v.coverage IS NOT NULL
       AND start_v.coverage != ''
       AND end_v.coverage != ''
+      AND typeof(start_v.coverage) IN ('integer', 'real')
+      AND typeof(end_v.coverage) IN ('integer', 'real')
     ORDER BY rate_change {order_direction}, country_name ASC
     LIMIT {limit};
     """
@@ -206,6 +255,8 @@ def get_region_rows(antigen, start_year, end_year, mode):
       AND end_v.coverage IS NOT NULL
       AND start_v.coverage != ''
       AND end_v.coverage != ''
+      AND typeof(start_v.coverage) IN ('integer', 'real')
+      AND typeof(end_v.coverage) IN ('integer', 'real')
     GROUP BY r.region
     ORDER BY avg_change {order_direction}, region_name ASC;
     """
@@ -360,16 +411,133 @@ def replace_placeholders(page_html, replacements):
     return page_html
 
 
+def render_empty_page(page_html, antigen, start_year, end_year, limit, mode, errors):
+    replacements = {
+        "{{ERROR_BOX}}": render_error_box(errors),
+        "{{PRINT_CLASS}}": "",
+        "{{ANTIGEN_OPTIONS}}": make_options(get_antigen_options(), antigen, "Select vaccine"),
+        "{{START_YEAR_OPTIONS}}": make_options(get_year_options(), start_year, "Select start year"),
+        "{{END_YEAR_OPTIONS}}": make_options(get_year_options(), end_year, "Select end year"),
+        "{{TOP_COUNTRY_OPTIONS}}": make_options(get_limit_options(), limit, "Select top count"),
+        "{{GAINS_CHECKED}}": 'checked="checked"' if mode == "gains" else "",
+        "{{DECLINES_CHECKED}}": 'checked="checked"' if mode == "declines" else "",
+        "{{BEST_IMPROVEMENT}}": "-",
+        "{{BEST_COUNTRY}}": "No filters applied",
+        "{{AVG_IMPROVEMENT}}": "-",
+        "{{AVG_LABEL}}": "Avg change",
+        "{{MOST_REGION}}": "-",
+        "{{MOST_REGION_SUB}}": "No filters applied",
+        "{{MOST_INCOME}}": "-",
+        "{{MOST_INCOME_SUB}}": "No filters applied",
+        "{{RESULT_TITLE}}": "Top vaccination improvers",
+        "{{RESULT_SUBTITLE}}": "No filters applied",
+        "{{SORT_LABEL}}": "No sorting applied",
+        "{{REGION_BARS}}": "<p>Please complete the required filters.</p>",
+        "{{IMPROVER_BARS}}": "<p>Please complete the required filters.</p>",
+        "{{DETAIL_TABLE_ROWS}}": '<tr><td colspan="8">Please complete the required filters.</td></tr>',
+        "{{ACTION_QUERY}}": "",
+    }
+
+    return replace_placeholders(page_html, replacements)
+
+
 def get_page_html(form_data):
     print("About to return Webpage 5 - Top Improvers...")
 
-    antigen, start_year, end_year, limit, mode = get_default_values(form_data)
-    rows = get_improver_rows(antigen, start_year, end_year, limit, mode)
-    region_rows = get_region_rows(antigen, start_year, end_year, mode)
+    antigen = get_required_value(form_data, "antigen")
+    start_year_value = get_required_value(form_data, "start_year")
+    end_year_value = get_required_value(form_data, "end_year")
+    limit_value = get_required_value(form_data, "limit")
+    mode = get_required_value(form_data, "mode")
+    export = get_required_value(form_data, "export")
+    print_class = "print-mode" if get_required_value(form_data, "print") == "1" else ""
 
+    submitted = (
+        "antigen" in form_data
+        or "start_year" in form_data
+        or "end_year" in form_data
+        or "limit" in form_data
+        or "mode" in form_data
+    )
+
+    with open(TEMPLATE, "r", encoding="utf-8") as file:
+        page_html = file.read()
+
+    if not submitted:
+        return render_empty_page(page_html, "", "", "", "", "", [])
+
+    errors = []
     antigen_options = get_antigen_options()
     year_options = get_year_options()
     limit_options = get_limit_options()
+
+    valid_antigens = [row[0] for row in antigen_options]
+    valid_years = [str(row[0]) for row in year_options]
+    valid_limits = [str(row[0]) for row in limit_options]
+
+    if antigen == "":
+        errors.append("Please select a vaccine.")
+    elif antigen not in valid_antigens:
+        errors.append("Please select a valid vaccine.")
+
+    if start_year_value == "":
+        errors.append("Please select a start year.")
+    elif start_year_value not in valid_years:
+        errors.append("Please select a valid start year.")
+
+    if end_year_value == "":
+        errors.append("Please select an end year.")
+    elif end_year_value not in valid_years:
+        errors.append("Please select a valid end year.")
+
+    if limit_value == "":
+        errors.append("Please select how many countries to show.")
+    elif limit_value not in valid_limits:
+        errors.append("Please select a valid top count.")
+
+    if mode == "":
+        errors.append("Please choose biggest gains or biggest declines.")
+    elif mode not in ["gains", "declines"]:
+        errors.append("Please choose a valid result type.")
+
+    start_year = to_int(start_year_value, 0)
+    end_year = to_int(end_year_value, 0)
+    limit = to_int(limit_value, 0)
+
+    if start_year_value != "" and end_year_value != "" and start_year >= end_year:
+        errors.append("Start year must be earlier than end year.")
+
+    if len(errors) > 0:
+        return render_empty_page(
+            page_html,
+            antigen,
+            start_year_value,
+            end_year_value,
+            limit_value,
+            mode,
+            errors
+        )
+
+    rows = get_improver_rows(antigen, start_year, end_year, limit, mode)
+    region_rows = get_region_rows(antigen, start_year, end_year, mode)
+
+    if export == "csv":
+        return make_csv_response(
+            "vaccination_top_improvers.csv",
+            ["Rank", "Country", "Region", "Income Group", "Start Rate", "End Rate", "Rate Change"],
+            [
+                (
+                    index,
+                    row[0],
+                    row[1],
+                    row[2] or "Not available",
+                    row[3],
+                    row[4],
+                    row[5],
+                )
+                for index, row in enumerate(rows, start=1)
+            ]
+        )
 
     antigen_label = get_selected_label(antigen_options, antigen, antigen)
     result_subtitle = f"{antigen} antigen - {start_year} to {end_year}"
@@ -391,14 +559,13 @@ def get_page_html(form_data):
         sort_label = "Sorted by rate decrease"
         result_word = "declines"
 
-    with open(TEMPLATE, "r", encoding="utf-8") as file:
-        page_html = file.read()
-
     replacements = {
-        "{{ANTIGEN_OPTIONS}}": make_options(antigen_options, antigen),
-        "{{START_YEAR_OPTIONS}}": make_options(year_options, start_year),
-        "{{END_YEAR_OPTIONS}}": make_options(year_options, end_year),
-        "{{TOP_COUNTRY_OPTIONS}}": make_options(limit_options, limit),
+        "{{ERROR_BOX}}": "",
+        "{{PRINT_CLASS}}": print_class,
+        "{{ANTIGEN_OPTIONS}}": make_options(antigen_options, antigen, "Select vaccine"),
+        "{{START_YEAR_OPTIONS}}": make_options(year_options, start_year, "Select start year"),
+        "{{END_YEAR_OPTIONS}}": make_options(year_options, end_year, "Select end year"),
+        "{{TOP_COUNTRY_OPTIONS}}": make_options(limit_options, limit, "Select top count"),
         "{{GAINS_CHECKED}}": 'checked="checked"' if mode == "gains" else "",
         "{{DECLINES_CHECKED}}": 'checked="checked"' if mode == "declines" else "",
         "{{BEST_IMPROVEMENT}}": best_improvement,
@@ -415,6 +582,7 @@ def get_page_html(form_data):
         "{{REGION_BARS}}": render_region_bars(region_rows),
         "{{IMPROVER_BARS}}": render_improver_bars(rows),
         "{{DETAIL_TABLE_ROWS}}": render_detail_table_rows(rows),
+        "{{ACTION_QUERY}}": build_action_query(antigen, start_year, end_year, limit, mode),
     }
 
     return replace_placeholders(page_html, replacements)

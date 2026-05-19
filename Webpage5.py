@@ -202,29 +202,37 @@ def build_improver_query(antigen, start_year, end_year, limit, mode):
       c.name AS country_name,
       r.region AS region_name,
       e.phase AS income_group,
-      CAST(start_v.coverage AS REAL) AS start_rate,
-      CAST(end_v.coverage AS REAL) AS end_rate,
-      ROUND(CAST(end_v.coverage AS REAL) - CAST(start_v.coverage AS REAL), 2) AS rate_change
+      ROUND((start_v.doses / start_p.population) * 100, 2) AS start_rate,
+      ROUND((end_v.doses / end_p.population) * 100, 2) AS end_rate,
+      ROUND(
+        ((end_v.doses / end_p.population) * 100)
+        -
+        ((start_v.doses / start_p.population) * 100),
+        2
+      ) AS rate_change
     FROM Vaccination start_v
     JOIN Vaccination end_v
       ON start_v.country = end_v.country
      AND start_v.antigen = end_v.antigen
+    JOIN CountryPopulation start_p
+      ON start_p.country = start_v.country
+     AND start_p.year = start_v.year
+    JOIN CountryPopulation end_p
+      ON end_p.country = end_v.country
+     AND end_p.year = end_v.year
     JOIN Country c ON start_v.country = c.CountryID
     JOIN Region r ON c.region = r.RegionID
     LEFT JOIN Economy e ON c.economy = e.economyID
     WHERE start_v.antigen = '{antigen}'
       AND start_v.year = {start_year}
       AND end_v.year = {end_year}
-      AND start_v.coverage IS NOT NULL
-      AND end_v.coverage IS NOT NULL
-      AND start_v.coverage != ''
-      AND end_v.coverage != ''
-      AND typeof(start_v.coverage) IN ('integer', 'real')
-      AND typeof(end_v.coverage) IN ('integer', 'real')
+      AND typeof(start_v.doses) IN ('integer', 'real')
+      AND typeof(end_v.doses) IN ('integer', 'real')
+      AND start_p.population > 0
+      AND end_p.population > 0
     ORDER BY rate_change {order_direction}, country_name ASC
     LIMIT {limit};
     """
-
 
 def get_improver_rows(antigen, start_year, end_year, limit, mode):
     query = build_improver_query(antigen, start_year, end_year, limit, mode)

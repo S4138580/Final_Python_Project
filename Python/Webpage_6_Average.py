@@ -22,7 +22,14 @@ def get_first_value(form_data, key, default_value):
     values = form_data.get(key)
     if values == None or len(values) == 0:
         return default_value
-    return values[0]
+    return values[0].strip()
+
+
+def get_required_value(form_data, key):
+    values = form_data.get(key)
+    if values == None or len(values) == 0:
+        return ""
+    return values[0].strip()
 
 
 def to_int(value, default_value):
@@ -42,9 +49,13 @@ def format_rate(value):
 def make_options(rows, selected_value, with_placeholder=False):
     html = ""
     if with_placeholder:
-        html += '<option value="" selected disabled>Select</option>'
+        selected = ' selected="selected"' if selected_value == "" else ""
+        html += f'<option value=""{selected} disabled>Select</option>'
         for row in rows:
-            html += f'<option value="{row[0]}">{row[1]}</option>'
+            value = str(row[0])
+            label = str(row[1])
+            selected = ' selected="selected"' if value == str(selected_value) else ""
+            html += f'<option value="{value}"{selected}>{label}</option>'
     else:
         for row in rows:
             value = str(row[0])
@@ -52,6 +63,16 @@ def make_options(rows, selected_value, with_placeholder=False):
             selected = ' selected="selected"' if value == str(selected_value) else ""
             html += f'<option value="{value}"{selected}>{label}</option>'
     return html
+
+
+def render_error_box(errors):
+    if len(errors) == 0:
+        return ""
+
+    html = ""
+    for error in errors:
+        html += f"<div>{error}</div>"
+    return f'<div class="error-box">{html}</div>'
 
 
 def build_where_clause(infection, year):
@@ -269,29 +290,70 @@ def get_page_html(form_data):
         "SELECT DISTINCT year, year FROM InfectionData ORDER BY year DESC;",
     )
 
-    default_infection = "MEA"
-    default_year = 2020
     default_order_by = "country_az"
 
-    infection = get_first_value(form_data, "infection", default_infection)
-    year_value = get_first_value(form_data, "year", default_year)
-    order_by = get_first_value(form_data, "order_by", default_order_by)
+    submitted = "submitted" in form_data
+    infection = get_required_value(form_data, "infection")
+    year_value = get_required_value(form_data, "year")
+    order_by = get_required_value(form_data, "order_by")
+    selected_order_by = order_by
     country_page = to_int(get_first_value(form_data, "country_page", 1), 1)
 
     valid_infections = [row[0] for row in infection_options]
     valid_years = [str(row[0]) for row in year_options]
 
-    if infection not in valid_infections:
-        infection = default_infection
-    if year_value not in valid_years:
-        year_value = str(default_year)
-    if order_by not in ORDER_BY_SQL:
+    errors = []
+    if submitted:
+        if infection == "":
+            errors.append("Please select an infection type.")
+        elif infection not in valid_infections:
+            errors.append("Please select a valid infection type.")
+
+        if year_value == "":
+            errors.append("Please select a year.")
+        elif year_value not in valid_years:
+            errors.append("Please select a valid year.")
+
+        if order_by == "":
+            errors.append("Please select how to order results.")
+        elif order_by not in ORDER_BY_SQL:
+            errors.append("Please select a valid ordering option.")
+
+    if order_by == "" or order_by not in ORDER_BY_SQL:
         order_by = default_order_by
 
-    year = to_int(year_value, default_year)
+    year = to_int(year_value, 0)
 
     if country_page < 1:
         country_page = 1
+
+    with open(TEMPLATE, "r", encoding="utf-8") as file:
+        page_html = file.read()
+
+    if (not submitted) or len(errors) > 0:
+        placeholder = True
+        data_style = 'style="display:none"'
+        replacements = {
+            "{{ERROR_BOX}}": render_error_box(errors),
+            "{{INFECTION_OPTIONS}}": make_options(infection_options, infection, with_placeholder=placeholder),
+            "{{YEAR_OPTIONS}}": make_options(year_options, year_value, with_placeholder=placeholder),
+            "{{ORDER_OPTIONS}}": make_options(ORDER_OPTIONS, selected_order_by, with_placeholder=placeholder),
+            "{{GLOBAL_TITLE}}": "",
+            "{{COUNTRY_ROWS}}": "",
+            "{{COUNTRY_SHOWING}}": "Showing 0-0 of 0",
+            "{{COUNTRY_PREV}}": "",
+            "{{COUNTRY_NEXT}}": "",
+            "{{COUNTRY_PAGE}}": "0",
+            "{{CHART_ROWS}}": "",
+            "{{CHART_LABEL}}": "",
+            "{{CSV_QUERY}}": "",
+            "{{DATA_SECTION_STYLE}}": data_style,
+        }
+
+        for placeholder_text in replacements:
+            page_html = page_html.replace(placeholder_text, replacements[placeholder_text])
+
+        return page_html
 
     global_rate = get_global_rate(infection, year)
     country_count = get_above_average_count(infection, year, global_rate)
@@ -330,14 +392,11 @@ def get_page_html(form_data):
     )
     csv_query = build_query_string(infection, year, order_by, country_page) + "&export=csv"
 
-    with open(TEMPLATE, "r", encoding="utf-8") as file:
-        page_html = file.read()
-
-    show_data = "submitted" in form_data
-    data_style = "" if show_data else 'style="display:none"'
-    placeholder = not show_data
+    data_style = ""
+    placeholder = False
 
     replacements = {
+        "{{ERROR_BOX}}": "",
         "{{INFECTION_OPTIONS}}": make_options(infection_options, infection, with_placeholder=placeholder),
         "{{YEAR_OPTIONS}}": make_options(year_options, str(year), with_placeholder=placeholder),
         "{{ORDER_OPTIONS}}": make_options(ORDER_OPTIONS, order_by, with_placeholder=placeholder),

@@ -22,7 +22,14 @@ def get_first_value(form_data, key, default_value):
     values = form_data.get(key)
     if values == None or len(values) == 0:
         return default_value
-    return values[0]
+    return values[0].strip()
+
+
+def get_required_value(form_data, key):
+    values = form_data.get(key)
+    if values == None or len(values) == 0:
+        return ""
+    return values[0].strip()
 
 
 def to_int(value, default_value):
@@ -48,9 +55,13 @@ def format_rate(value):
 def make_options(rows, selected_value, with_placeholder=False):
     html = ""
     if with_placeholder:
-        html += '<option value="" selected disabled>Select</option>'
+        selected = ' selected="selected"' if selected_value == "" else ""
+        html += f'<option value=""{selected} disabled>Select</option>'
         for row in rows:
-            html += f'<option value="{row[0]}">{row[1]}</option>'
+            value = str(row[0])
+            label = str(row[1])
+            selected = ' selected="selected"' if value == str(selected_value) else ""
+            html += f'<option value="{value}"{selected}>{label}</option>'
     else:
         for row in rows:
             value = str(row[0])
@@ -58,6 +69,16 @@ def make_options(rows, selected_value, with_placeholder=False):
             selected = ' selected="selected"' if value == str(selected_value) else ""
             html += f'<option value="{value}"{selected}>{label}</option>'
     return html
+
+
+def render_error_box(errors):
+    if len(errors) == 0:
+        return ""
+
+    html = ""
+    for error in errors:
+        html += f"<div>{error}</div>"
+    return f'<div class="error-box">{html}</div>'
 
 
 def build_query_string(economy, infection, year, order_by, country_page):
@@ -294,31 +315,80 @@ def get_page_html(form_data):
         "SELECT DISTINCT year, year FROM InfectionData ORDER BY year DESC;",
     )
 
-    default_economy = 3
-    default_infection = "MEA"
-    default_year = 2020
-    default_order_by = "country_az"
-
-    economy = to_int(get_first_value(form_data, "economy", default_economy), default_economy)
-    infection = get_first_value(form_data, "infection", default_infection)
-    year = to_int(get_first_value(form_data, "year", default_year), default_year)
-    order_by = get_first_value(form_data, "order_by", default_order_by)
-    country_page = to_int(get_first_value(form_data, "country_page", 1), 1)
-
     valid_economies = [row[0] for row in economy_options]
     valid_infections = [row[0] for row in infection_options]
-    valid_years = [row[0] for row in year_options]
+    valid_years = [str(row[0]) for row in year_options]
 
-    if economy not in valid_economies:
-        economy = default_economy
-    if infection not in valid_infections:
-        infection = default_infection
-    if year not in valid_years:
-        year = default_year
-    if order_by not in ORDER_BY_SQL:
+    submitted = "submitted" in form_data
+    default_order_by = "country_az"
+
+    economy_value = get_required_value(form_data, "economy")
+    infection = get_required_value(form_data, "infection")
+    year_value = get_required_value(form_data, "year")
+    order_by = get_required_value(form_data, "order_by")
+    selected_order_by = order_by
+    country_page = to_int(get_first_value(form_data, "country_page", 1), 1)
+
+    errors = []
+    economy = to_int(economy_value, 0)
+    year = to_int(year_value, 0)
+
+    if submitted:
+        if economy_value == "":
+            errors.append("Please select an economic status.")
+        elif economy not in valid_economies:
+            errors.append("Please select a valid economic status.")
+
+        if infection == "":
+            errors.append("Please select an infection type.")
+        elif infection not in valid_infections:
+            errors.append("Please select a valid infection type.")
+
+        if year_value == "":
+            errors.append("Please select a year.")
+        elif year_value not in valid_years:
+            errors.append("Please select a valid year.")
+
+        if order_by == "":
+            errors.append("Please select how to order results.")
+        elif order_by not in ORDER_BY_SQL:
+            errors.append("Please select a valid ordering option.")
+
+    if order_by == "" or order_by not in ORDER_BY_SQL:
         order_by = default_order_by
     if country_page < 1:
         country_page = 1
+
+    with open(TEMPLATE, "r", encoding="utf-8") as file:
+        page_html = file.read()
+
+    if (not submitted) or len(errors) > 0:
+        placeholder = True
+        data_style = 'style="display:none"'
+        replacements = {
+            "{{ERROR_BOX}}": render_error_box(errors),
+            "{{ECONOMY_OPTIONS}}": make_options(economy_options, economy_value, with_placeholder=placeholder),
+            "{{INFECTION_OPTIONS}}": make_options(infection_options, infection, with_placeholder=placeholder),
+            "{{YEAR_OPTIONS}}": make_options(year_options, year_value, with_placeholder=placeholder),
+            "{{ORDER_OPTIONS}}": make_options(ORDER_OPTIONS, selected_order_by, with_placeholder=placeholder),
+            "{{COUNTRY_ROWS}}": "",
+            "{{SUMMARY_ROWS}}": "",
+            "{{CHART_ROWS}}": "",
+            "{{CHART_DISEASE}}": "",
+            "{{CHART_YEAR}}": "",
+            "{{COUNTRY_SHOWING}}": "Showing 0-0 of 0",
+            "{{COUNTRY_PREV}}": "",
+            "{{COUNTRY_NEXT}}": "",
+            "{{COUNTRY_PAGE}}": "0",
+            "{{COUNTRY_CSV_QUERY}}": "",
+            "{{SUMMARY_CSV_QUERY}}": "",
+            "{{DATA_SECTION_STYLE}}": data_style,
+        }
+
+        for placeholder_text in replacements:
+            page_html = page_html.replace(placeholder_text, replacements[placeholder_text])
+
+        return page_html
 
     country_count = get_country_count(economy, infection, year)
     total_pages = max(1, ((country_count - 1) // ROWS_PER_PAGE) + 1)
@@ -357,9 +427,6 @@ def get_page_html(form_data):
         if row[0] == infection:
             selected_disease = row[1]
 
-    with open(TEMPLATE, "r", encoding="utf-8") as file:
-        page_html = file.read()
-
     country_prev, country_next, country_page_text = render_pager(
         economy,
         infection,
@@ -372,11 +439,11 @@ def get_page_html(form_data):
     country_csv_query = csv_query + "&export=country"
     summary_csv_query = csv_query + "&export=summary"
 
-    show_data = "submitted" in form_data
-    data_style = "" if show_data else 'style="display:none"'
-    placeholder = not show_data
+    data_style = ""
+    placeholder = False
 
     replacements = {
+        "{{ERROR_BOX}}": "",
         "{{ECONOMY_OPTIONS}}": make_options(economy_options, economy, with_placeholder=placeholder),
         "{{INFECTION_OPTIONS}}": make_options(infection_options, infection, with_placeholder=placeholder),
         "{{YEAR_OPTIONS}}": make_options(year_options, year, with_placeholder=placeholder),
